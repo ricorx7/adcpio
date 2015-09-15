@@ -1,6 +1,16 @@
 package main
 
-import "log"
+import (
+	"encoding/json"
+	"log"
+
+	"github.com/ricorx7/go-rti"
+)
+
+type adcp struct {
+	serialNum string
+	lastEns   rti.Ensemble
+}
 
 // adcpIO Connections and broadcast to
 // send messages to all connections.
@@ -11,6 +21,7 @@ type adcpIO struct {
 	register      chan *websocketConn     // Register requests from the connections.
 	unregister    chan *websocketConn     // Unregister requests from connections.
 	broadcast     chan []byte             // Broadcast data
+	adcp          map[string]*adcp        // List of ADCP data.  Key is the serial number of the ADCP
 }
 
 // echo initializes the values.
@@ -22,9 +33,10 @@ var server = adcpIO{
 	unregister:    make(chan *websocketConn),     // Unregister a websocket connection
 	websocketConn: make(map[*websocketConn]bool), // Websocket connection map
 	broadcast:     make(chan []byte),             // Broadcast the data
+	adcp:          make(map[string]*adcp),        // ADCP Data map
 }
 
-// run the Echo process
+// run the server process
 // This will monitor websockets
 // and serial ports for connections
 // and disconnects.
@@ -35,10 +47,9 @@ func (server *adcpIO) run() {
 
 		// Register websocket
 		case c := <-server.register:
+			log.Println("Registering websocket")
 			// Register the websocket to the map
 			server.websocketConn[c] = true
-
-			log.Println("Registering websocket")
 
 		// Unregister websocket
 		case c := <-server.unregister:
@@ -52,19 +63,33 @@ func (server *adcpIO) run() {
 
 			// Broadcast message to all listeners
 		case m := <-server.broadcast:
-			log.Print(m)
 
-			for c := range server.websocketConn {
-				log.Print(c.adcpSerialNum)
-				select {
-				case c.send <- m:
-				default:
-					// If connection not good, remove the connection
-					close(c.send)
-					delete(server.websocketConn, c)
-				}
+			//log.Printf("Message broadcast: %d", len(m))
+			//log.Print(string(m))
+
+			// Convert the message to JSON
+			var ens rti.Ensemble
+			err := json.Unmarshal(m, &ens)
+			if err != nil {
+				log.Print("Err converting JSON: ", err)
 			}
+			//log.Printf("Ensemble Number: %d", ens.EnsembleData.EnsembleNumber)
 
+			// Process the ensemble
+			processEnsemble(server, ens)
 		}
+	}
+}
+
+func processEnsemble(server *adcpIO, ens rti.Ensemble) {
+	// See if the serial number exist in the map
+	if val, ok := server.adcp[ens.EnsembleData.SerialNumber.SerialNumber]; ok {
+		val.lastEns = ens
+		log.Print("ADCP exist")
+	} else {
+		var data adcp
+		data.lastEns = ens
+		server.adcp[ens.EnsembleData.SerialNumber.SerialNumber] = &data
+		log.Print("ADCP does not exist")
 	}
 }

@@ -22,6 +22,9 @@ func main() {
 	// setup logging
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
+	// Run the server
+	go server.run()
+
 	// HTTP server
 	http.HandleFunc("/ws", wsHandler) // wsHandler in websocketConn.go.  Creates websocket
 	if err := http.ListenAndServe(*addr, nil); err != nil {

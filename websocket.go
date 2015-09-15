@@ -25,7 +25,7 @@ const (
 	pingPeriod = (readWaitTime * 9) / 10
 
 	// Maximum message size allowed from peer.
-	maxMessageSize = 512
+	maxMessageSize = 1024 * 20
 )
 
 // upgrader sets the buffer sizes for the websocket.
@@ -74,7 +74,8 @@ func (wsConn *websocketConn) reader() {
 			log.Println("Error reading data from ws. " + err.Error())
 			break
 		}
-		log.Println("Websocket message: " + string(message))
+
+		log.Printf("Websocket message: %d", len(message))
 		server.broadcast <- message
 	}
 
