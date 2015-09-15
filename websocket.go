@@ -118,6 +118,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != "GET" {
 		http.Error(w, "Method not allowed", 405)
+		log.Print("Method not allowed")
 		return
 	}
 
@@ -125,6 +126,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if _, ok := err.(websocket.HandshakeError); ok {
 		http.Error(w, "Not a websocket handshake", 400)
+		log.Print("Not a websocket handshake")
 		return
 	} else if err != nil {
 		log.Println("Error opening socket: " + err.Error())
@@ -135,7 +137,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	// This will block until the buffer is full
 	c := &websocketConn{send: make(chan []byte, 256*10), ws: ws}
 
-	// Register the connection with echo
+	// Register the connection with the server
 	server.register <- c
 
 	log.Println("Create Websocket")
