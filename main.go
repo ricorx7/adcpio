@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"text/template"
 )
 
 // Flags to set at startup
@@ -26,10 +27,21 @@ func main() {
 	go server.run()
 
 	// HTTP server
-	http.HandleFunc("/ws", wsHandler) // wsHandler in websocketConn.go.  Creates websocket
+	http.HandleFunc("/", debugHandler)    // Debugger
+	http.HandleFunc("/adcp", adcpHandler) // Debugger
+	http.HandleFunc("/upload", uploadHandler)
+	http.HandleFunc("/ws", wsHandler)                // wsHandler in websocketConn.go.  Creates websocket
+	http.HandleFunc("/wsAdcp", wsAdcpDisplayHandler) // wsHandler in websocketConn.go.  Creates websocket
 	if err := http.ListenAndServe(*addr, nil); err != nil {
 		fmt.Printf("Error trying to bind to port: %v, so exiting...", err)
 		log.Fatal("Error ListenAndServe:", err)
 	}
 
+}
+
+// adcpHandler passes the template
+// to the http request.
+func adcpHandler(c http.ResponseWriter, req *http.Request) {
+	t, _ := template.ParseFiles("adcp.html")
+	t.Execute(c, nil)
 }
