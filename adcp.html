@@ -9,6 +9,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.8.4/angular-chart.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.8.4/angular-chart.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+<script src="//cdn.rawgit.com/n3-charts/line-chart/1.1.11/build/line-chart.min.js"></script>
+
 
 <head>
 	<style>
@@ -52,7 +55,7 @@
 				<!--Tab Panel-->
 				<ul class="nav nav-tabs">
 					<li class="active">
-						<a href="#ports" data-toggle="tab">Serial Ports
+						<a href="#ports" data-toggle="tab">ADCPs
 							<button type="button" class="btn btn-xs btn-default spconsole-pause " ng-click="list()">
 								<span class="glyphicon glyphicon-refresh"></span>
 							</button>
@@ -68,10 +71,11 @@
 					<div id="ports" class="tab-pane fade in active">
 						<div class="row">
 							<div class="col-sm-10">
-								<ul ng-repeat="port in portList">
+								<ul ng-repeat="adcp in adcpList">
 									<li>
 										<div class="panel panel-default">
-											<div class="panel-heading"><span data-ng-bind="port.Friendly"></div>
+                      <div class="panel-heading"><span data-ng-bind="adcp"></span></div>
+											<!--div class="panel-heading"><span data-ng-bind="port.Friendly"></div>
 											Baud: <select name="singleSelect" ng-model="port.Baud" ng-init="port.Baud" ng-options="baud for baud in [921600, 460800, 230400, 115200, 38400, 19200, 9600, 4800, 2400, 0]"></select><br>
 											Is Open: <span data-ng-bind="port.IsOpen"></span><br>
 											<button class="btn btn-xs btn-default" ng-click="connect(port)">Connect</button>
@@ -83,18 +87,12 @@
 											<button class="btn" ng-click="sendPortMsg(port, port.PortMsg)">Send</button>
 											<button class="btn" ng-click="sendPortStart(port)">START</button>
 											<button class="btn" ng-click="sendPortStop(port)">STOP</button>
-											<button class="btn" ng-click="sendPortBreak(port)">BREAK</button>
+											<button class="btn" ng-click="sendPortBreak(port)">BREAK</button-->
 										</div>
 									</li>
 								</ul>
 							</div>
 						</div>
-            <div class="row">
-              <canvas id="line" class="chart chart-line" chart-data="data"
-                chart-labels="labels" chart-legend="true" chart-series="series"
-                chart-click="onClick" >
-              </canvas>
-            </div>
 					</div>
 
 					<div id="status" class="tab-pane fade">
@@ -144,10 +142,41 @@
 	</div>
 
   <div class="row">
-    <canvas id="line" class="chart chart-line" chart-data="data"
-      chart-labels="labels" chart-legend="true" chart-series="series"
-      chart-click="onClick" >
-    </canvas>
+    <div class="col-lg-6">
+      <canvas id="line" class="chart chart-line" chart-data="data"
+        chart-labels="labels" chart-legend="true" chart-series="series"
+        chart-click="onClick" >
+      </canvas>
+    </div>
+    <div class="col-lg-6">
+      <canvas id="hpr" class="chart chart-line" chart-data="hdgData"
+        chart-labels="hdgLabels" chart-legend="true" chart-series="hdgSeries"
+        chart-click="onClick" >
+      </canvas>
+    </div>
+    <div class="col-lg-6">
+      <linechart data="ampPlotData" options="ampPlotOptions" mode="" width="500" height="500"></linechart>
+    </div>
+    <div class="col-lg-6">
+      <linechart data="corrPlotData" options="ampPlotOptions" mode="" width="500" height="500"></linechart>
+    </div>
+    <div class="col-lg-6 col-sm-12">
+              <div class="panel panel-default">
+                <div class="panel-heading">Chart Data</div>
+                <div class="panel-body">
+                  <table class="table table-responsive table-condensed table-striped">
+                    <tr>
+
+                    </tr>
+                    <tr ng-repeat="dataSet in hdgData">
+
+                    </tr>
+                  </table>
+              <button type="button" class="btn btn-primary pull-right" ng-click="randomize()">Randomize</button>
+                </div>
+              </div>
+            </div>
+
   </div>
 
 </div>
@@ -160,7 +189,7 @@ jQuery(document).ready(function ($) {
         $('#tabs').tab();
     });
 
-var app = angular.module('echo', ['chart.js']);
+var app = angular.module('echo', ['chart.js', 'n3-line-chart']);
 app.controller('AdcpCtrl', function($scope) {
 
 	// Flag used to find the Serial Port list
@@ -169,8 +198,8 @@ app.controller('AdcpCtrl', function($scope) {
   $scope.statusMsgs = [];
   $scope.messageStr = "";
 	$scope.portList = "";
-	$scope.serverAddr = "localhost:8080/ws";
-	$scope.webSocketAddr = "ws://localhost:8080/wsAdcp";
+	$scope.serverAddr = "192.168.0.152:8080/wsAdcp";
+	$scope.webSocketAddr = "ws://192.168.0.152:8080/wsAdcp";
 	$scope.websocketState = "";
 	$scope.singleSelect = null;
 
@@ -185,9 +214,35 @@ app.controller('AdcpCtrl', function($scope) {
     [65, 59, 80, 81, 56, 55, 40],
     [28, 48, 40, 19, 86, 27, 90]
   ];
+
+  $scope.ampPlotOptions = {
+    series: [
+      {y: 'B0', color: 'steelblue', thickness: '2px', type: 'line', striped: true, label: 'B0'},
+      {y: 'B1', color: '#ff7f0e', thickness: '2px', type: 'line', striped: true, label: 'B1'},
+      {y: 'B2', color: '#2ca02c', thickness: '2px', type: 'line', striped: true, label: 'B2'},
+      {y: 'B3', color: 'lightsteelblue', thickness: '2px', type: 'line', striped: true, label: 'B3'}],
+      lineMode: 'linear',
+    };
+
+  //$scope.testdata = [{"x":0,"B0":38.001507,"B1":38.76827,"B2":38.430435,"B3":37.997944},{"x":1,"B0":36.959843,"B1":38.247063,"B2":37.371746,"B3":37.499527},{"x":2,"B0":36.514256,"B1":37.87881,"B2":37.286716,"B3":36.98374},{"x":3,"B0":35.90004,"B1":38.23151,"B2":38.4583,"B3":36.52584},{"x":4,"B0":35.996815,"B1":37.84444,"B2":38.08054,"B3":36.44937},{"x":5,"B0":36.90269,"B1":38.36325,"B2":38.31654,"B3":36.445812},{"x":6,"B0":36.868732,"B1":37.49068,"B2":37.486103,"B3":36.12664},{"x":7,"B0":36.51291,"B1":38.275772,"B2":37.789238,"B3":36.660854},{"x":8,"B0":36.387455,"B1":37.72268,"B2":37.71038,"B3":37.185066},{"x":9,"B0":37.082146,"B1":38.045975,"B2":37.927567,"B3":36.871506},{"x":10,"B0":36.854874,"B1":37.926907,"B2":38.076122,"B3":37.167328},{"x":11,"B0":36.22549,"B1":38.199535,"B2":38.0375,"B3":36.933525},{"x":12,"B0":37.038513,"B1":37.84534,"B2":38.338783,"B3":36.860596},{"x":13,"B0":37.375813,"B1":38.963356,"B2":37.751778,"B3":36.832558},{"x":14,"B0":36.557842,"B1":38.519505,"B2":38.099224,"B3":36.89949},{"x":15,"B0":36.79472,"B1":38.66629,"B2":37.600086,"B3":37.150146},{"x":16,"B0":36.22694,"B1":38.565216,"B2":38.285477,"B3":36.580235},{"x":17,"B0":36.656963,"B1":37.859356,"B2":37.731327,"B3":36.949303},{"x":18,"B0":36.985207,"B1":37.907585,"B2":37.99559,"B3":37.112278},{"x":19,"B0":36.373184,"B1":37.951683,"B2":38.247814,"B3":36.288326},{"x":20,"B0":36.16596,"B1":38.11096,"B2":37.69341,"B3":36.898624},{"x":21,"B0":36.553547,"B1":37.80579,"B2":37.257927,"B3":36.14695},{"x":22,"B0":37.30977,"B1":37.743023,"B2":37.866608,"B3":36.407238},{"x":23,"B0":36.630188,"B1":37.967106,"B2":37.303566,"B3":36.51655},{"x":24,"B0":36.863213,"B1":37.597572,"B2":38.28631,"B3":36.901485},{"x":25,"B0":36.77613,"B1":37.59254,"B2":37.7377,"B3":36.957924},{"x":26,"B0":37.328213,"B1":37.854904,"B2":38.435078,"B3":36.58246},{"x":27,"B0":37.018402,"B1":38.409275,"B2":36.440895,"B3":36.89953},{"x":28,"B0":36.202087,"B1":37.50076,"B2":38.57007,"B3":37.16545},{"x":29,"B0":36.84858,"B1":40.500908,"B2":37.949085,"B3":36.72157}];
+
+  $scope.hdgLabels = [];
+  $scope.hdgSeries = ['Heading', 'Pitch', 'Roll'];
+  $scope.hdgData = [[], [], []];
+  Chart.defaults.global.responsive = true;
+  Chart.defaults.global.animation = false;
+
   $scope.onClick = function (points, evt) {
     console.log(points, evt);
   };
+  $scope.randomize = function () {
+      $scope.data = $scope.data.map(function (data) {
+        return data.map(function (y) {
+          y = y + Math.random() * 10 - 5;
+          return parseInt(y < 0 ? 0 : y > 100 ? 100 : y);
+        });
+      });
+    };
 
 	// Append the data so it will not be a large buffer
   function appendLog(msg) {
@@ -306,6 +361,9 @@ app.controller('AdcpCtrl', function($scope) {
       //$scope.messages.push(e.data);
       appendLog(e.data);
 			setWebsocketStatus("onmessage:");
+
+      // Process message
+      processMessage(e.data);
     });
   };
 	// called when a message is received from the server
@@ -433,6 +491,80 @@ WebsocketConnect();
 		$scope.cmd = cmd;
 		conn.send(cmd);
 	}
+
+  // processMessage will process incoming messages.
+  // It will decoded what type of JSON message is received,
+  // then display the data.
+  function processMessage(msg) {
+    // Convert the data to JSON
+    var jsonData = JSON.parse(msg);
+
+    // Get the Adcp List
+		if( jsonData.hasOwnProperty('ID'))
+		{
+      //console.log(jsonData.ID);
+
+      // Got ADCP list
+      if(jsonData.ID == 'AdcpList') {
+        //console.log(jsonData.)
+        $scope.adcpList = jsonData.SerialNumList;
+      }
+
+      // Got raw ensemble
+      if(jsonData.ID == 'Ensemble') {
+        // Set Heading, Pitch, Roll
+        setHPR(jsonData.Ens);
+      }
+
+      // Profile Amplitude Data
+      if(jsonData.ID == 'ProfileAmpData') {
+        setProfileAmpData(jsonData)
+      }
+
+      // Profile Correlation Data
+      if(jsonData.ID == 'ProfileCorrData') {
+        setProfileCorrData(jsonData)
+      }
+
+		}
+  }
+
+  // Update the Heading, Pitch and Roll.
+  function setHPR(ens) {
+    var ensNum = ens.EnsembleData.EnsembleNumber;
+    $scope.hdgLabels.push(ensNum);
+
+    var hdg = ens.AncillaryData.Heading;
+    var pitch = ens.AncillaryData.Pitch;
+    var roll = ens.AncillaryData.Roll;
+    $scope.hdgData[0].push(hdg);
+    $scope.hdgData[1].push(pitch);
+    $scope.hdgData[2].push(roll);
+
+    // Keep the size small
+    if($scope.hdgLabels.length > 40) {
+      $scope.hdgLabels.splice(0, 1);
+      $scope.hdgData[0].splice(0, 1);
+      $scope.hdgData[1].splice(0, 1);
+      $scope.hdgData[2].splice(0, 1);
+    }
+  }
+
+  function setProfileAmpData(json) {
+
+    $scope.ampPlotData = JSON.parse(json.Data);
+    //console.log(JSON.parse(json.Options));
+
+    //$scope.ampPlotOptions = JSON.parse(json.Options);
+  }
+
+  function setProfileCorrData(json) {
+
+    $scope.corrPlotData = JSON.parse(json.Data);
+    //console.log(JSON.parse(json.Options));
+
+    //$scope.ampPlotOptions = JSON.parse(json.Options);
+  }
 
 
 });

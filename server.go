@@ -7,11 +7,6 @@ import (
 	"github.com/ricorx7/go-rti"
 )
 
-type adcp struct {
-	serialNum string
-	lastEns   rti.Ensemble
-}
-
 // adcpIO Connections and broadcast to
 // send messages to all connections.
 // A connection is either a serial port
@@ -40,6 +35,12 @@ var server = adcpIO{
 	wsAdcpDisplayConn:     make(map[*websocketAdcpDisplay]bool), // Websocket connection map
 	broadcast:             make(chan []byte),                    // Broadcast the data
 	adcp:                  make(map[string]*adcp),               // ADCP Data map
+}
+
+// adcp will store all the ADCP it is monitoring and also the last ensemble.
+type adcp struct {
+	serialNum string       // Serial number
+	lastEns   rti.Ensemble // Last ensemble
 }
 
 // run the server process
@@ -73,6 +74,9 @@ func (server *adcpIO) run() {
 			// Register the websocket to the map
 			server.wsAdcpDisplayConn[c] = true
 
+			// Send a list of all ADCP
+			sendAdcpList()
+
 		// Unregister Adcp Display websocket
 		case c := <-server.unregisterAdcpDisplay:
 			if _, ok := server.wsAdcpDisplayConn[c]; ok {
@@ -81,6 +85,9 @@ func (server *adcpIO) run() {
 
 				delete(server.wsAdcpDisplayConn, c) // Unregister the websocket from the map
 				close(c.send)                       // Close the websocket send channel
+
+				// Send a new list of all the ADCP
+				sendAdcpList()
 			}
 
 			// Broadcast message to all listeners
@@ -97,36 +104,14 @@ func (server *adcpIO) run() {
 			//log.Printf("Ensemble Number: %d", ens.EnsembleData.EnsembleNumber)
 
 			// Process the ensemble
+			// Pass the data to all the registered displays
 			processEnsemble(server, ens)
-
-			sendEnsembleToDisplays(ens)
 		}
 	}
 }
 
-// processEnsemble will take the ensemble data and add it to the map.
-// It will then set the latest ensemble.
-func processEnsemble(server *adcpIO, ens rti.Ensemble) {
-	// See if the serial number exist in the map
-	if val, ok := server.adcp[ens.EnsembleData.SerialNumber.SerialNumber]; ok {
-		val.lastEns = ens
-		log.Print("ADCP exist")
-	} else {
-		var data adcp
-		data.lastEns = ens
-		server.adcp[ens.EnsembleData.SerialNumber.SerialNumber] = &data
-		log.Print("ADCP does not exist")
-	}
-}
-
-// sendEnsembleToDisplays will send the ensemble to the registered displays.
-func sendEnsembleToDisplays(ens rti.Ensemble) {
-	// Send the data to Adcp Display
-	b, err := json.Marshal(ens)
-	if err != nil {
-		log.Println(err)
-	}
-
+// sendDataToDisplays will send data to all the registered displays.
+func sendDataToDisplays(b []byte) {
 	for c := range server.wsAdcpDisplayConn {
 		select {
 		case c.send <- b:
@@ -136,4 +121,29 @@ func sendEnsembleToDisplays(ens rti.Ensemble) {
 			delete(server.wsAdcpDisplayConn, c)
 		}
 	}
+}
+
+// sendAdcpList will send list of ADCP connected
+// to all the registered displays.
+func sendAdcpList() {
+	var list []string
+	for key, _ := range server.adcp {
+		list = append(list, key)
+	}
+
+	adcps := adcpList{
+		ID:            adcpListID, // ID
+		SerialNumList: list,       // List of serial numbers
+	}
+
+	// Convert the JSON to byte array
+	b, err := json.Marshal(adcps)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// Send the data to the display
+	sendDataToDisplays(b)
+
 }
