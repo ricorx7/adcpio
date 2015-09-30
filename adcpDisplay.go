@@ -8,11 +8,15 @@ import (
 )
 
 const (
-	adcpListID     = "AdcpList"
-	adcpEnsembleID = "Ensemble"
-	velBeamDataID  = "VelBeamData"
-	profileAmpID   = "ProfileAmpData"
-	profileCorrID  = "ProfileCorrData"
+	adcpListID        = "AdcpList"
+	adcpEnsembleID    = "Ensemble"
+	velBeamDataID     = "VelBeamData"
+	profileAmpID      = "ProfileAmpData"
+	profileCorrID     = "ProfileCorrData"
+	profileID         = "ProfileData"
+	profileRickshawID = "ProfileRickshawData"
+	profileC3ID       = "ProfileC3Data"
+	hprID             = "HprData"
 )
 
 // adcp will store all the ADCP it is monitoring and also the last ensemble.
@@ -41,20 +45,130 @@ type velBeamData struct {
 	Beam3Vel        []float32 // Beam 3 velocity
 }
 
-// profileData will store the amplitude and correlation data.
+// profileBeamData will store the data for a bin.
+type profileBeamData struct {
+	Values [][]float32 `json:"values"` // JSON Data
+	Color  string      `json:"color"`  // Color option
+	Key    string      `json:"key"`    // Data key
+	Area   bool        `json:"area"`   // Flag if data should be area plot
+}
+
+// timeSeriesData will store the data for a time series.
+type timeSeriesData struct {
+	Values [][]float32 `json:"values"` // JSON Data
+	Color  string      `json:"color"`  // Color option
+	Key    string      `json:"key"`    // Data key
+	Area   bool        `json:"area"`   // Flag if data should be area plot
+}
+
+// profileData will store the profile data.
 type profileData struct {
-	ID              string    // Data ID
-	SerialNum       string    // Serial Number
-	SubsystemConfig string    // Subystem configuration
-	Labels          []string  // Seprate each ensemble's data with this label
-	Beam0Amp        []float32 // Beam 0 Amplitude
-	Beam1Amp        []float32 // Beam 1 Amplitude
-	Beam2Amp        []float32 // Beam 2 Amplitude
-	Beam3Amp        []float32 // Beam 3 Amplitude
-	Beam0Corr       []float32 // Beam 0 Correlation
-	Beam1Corr       []float32 // Beam 1 Correlation
-	Beam2Corr       []float32 // Beam 2 Correlation
-	Beam3Corr       []float32 // Beam 3 Correlation
+	ID        string            // Data ID
+	SerialNum string            // Serial Number
+	CepoIndex uint8             // Subystem configuration
+	AmpData   []profileBeamData // Array of all the Amplitude series
+	CorrData  []profileBeamData // Array of all the Correlation series
+}
+
+// profileRickshawData will store the profile data.
+type profileRickshawData struct {
+	ID         string           // Data ID
+	SerialNum  string           // Serial Number
+	CepoIndex  uint8            // Subystem configuration
+	AmpB0Data  lineRickshawData // Array of all the Amplitude B0 series
+	AmpB1Data  lineRickshawData // Array of all the Amplitude B1 series
+	AmpB2Data  lineRickshawData // Array of all the Amplitude B2 series
+	AmpB3Data  lineRickshawData // Array of all the Amplitude B3 series
+	CorrB0Data lineRickshawData // Array of all the Correlation B0 series
+	CorrB1Data lineRickshawData // Array of all the Correlation B1 series
+	CorrB2Data lineRickshawData // Array of all the Correlation B2 series
+	CorrB3Data lineRickshawData // Array of all the Correlation B3 series
+}
+
+// pointRickshawData is the point data with x and y.
+type pointRickshawData struct {
+	X float32 `json:"x"` // X data
+	Y float32 `json:"y"` // Y data
+}
+
+// lineRickshawData is the line.
+type lineRickshawData struct {
+	Data  []pointRickshawData `json:"data"`  // JSON Data
+	Color string              `json:"color"` // Color option
+	Key   string              `json:"key"`   // Data key
+	Area  bool                `json:"area"`  // Flag if data should be area plot
+}
+
+// profileC3Data will store the profile data.
+type profileC3Data struct {
+	ID         string    // Data ID
+	SerialNum  string    // Serial Number
+	CepoIndex  uint8     // Subystem configuration
+	AmpXAxis   []float32 // Amplitude X Axis Labels
+	AmpB0Data  []float32 // Array of all the Amplitude B0 series
+	AmpB1Data  []float32 // Array of all the Amplitude B1 series
+	AmpB2Data  []float32 // Array of all the Amplitude B2 series
+	AmpB3Data  []float32 // Array of all the Amplitude B3 series
+	CorrXAxis  []float32 // Correlation X Axis Labels
+	CorrB0Data []float32 // Array of all the Correlation B0 series
+	CorrB1Data []float32 // Array of all the Correlation B1 series
+	CorrB2Data []float32 // Array of all the Correlation B2 series
+	CorrB3Data []float32 // Array of all the Correlation B3 series
+}
+
+// hprData will store the heading, pitch and roll data.
+type hprData struct {
+	ID        string           // Data ID
+	SerialNum string           // Serial Number
+	CepoIndex uint8            // Subystem configuration
+	HprData   []timeSeriesData // Array of all the hpr series
+}
+
+// heading will accumulate the heading values.
+var heading = &timeSeriesData{
+	Color: "#ff7f0e", // Color of the plot
+	Key:   "Heading", // Key for the data
+	Area:  false,     // Flag for area plot
+}
+
+// pitch will accumulate the pitch values.
+var pitch = &timeSeriesData{
+	Color: "#2ca02c", // Color of the plot
+	Key:   "Pitch",   // Key for the data
+	Area:  false,     // Flag for area plot
+}
+
+// roll will accumulate the rol values.
+var roll = &timeSeriesData{
+	Color: "#7777ff", // Color of the plot
+	Key:   "Roll",    // Key for the data
+	Area:  false,     // Flag for area plot
+}
+
+// pointEpochData is the point data with x and y.
+type pointEpochPointData struct {
+	X float32 `json:"x"` // X data
+	Y float32 `json:"y"` // Y data
+}
+
+// pointEpochData is the point data with x and y.
+type pointEpochTimeData struct {
+	Time float32 `json:"time"` // Time data
+	Y    float32 `json:"y"`    // Y data
+}
+
+// seriesEpochData holds the Epoch series data.
+type seriesEpochData struct {
+	Label  string                `json:"label"`  // Series Label
+	Values []pointEpochPointData `json:"values"` // Values
+}
+
+type profileEpochData struct {
+	ID        string                    // Data ID
+	SerialNum string                    // Serial Number
+	CepoIndex uint8                     // Subystem configuration
+	Data      []seriesEpochData         // Data
+	TimeData  []seriesEpochRealtimeData // Realtime data
 }
 
 // processEnsemble will take the ensemble data and add it to the map.
@@ -77,8 +191,17 @@ func processEnsemble(server *adcpIO, ens rti.Ensemble) {
 	// Send last ensemble to display
 	sendRawEnsemble(ens)
 
-	// Set the velocity data
+	// Send Profile data
 	sendProfilePlotData(ens)
+
+	// Send Profile Rickshaw data
+	sendProfileRickshawPlotData(ens)
+
+	// Send Profile C3 data
+	sendProfileC3PlotData(ens)
+
+	// Send HPR data
+	sendHprPlotData(ens)
 }
 
 // sendRawEnsemble will send the ensemble to the registered displays through
@@ -103,155 +226,316 @@ func sendRawEnsemble(ens rti.Ensemble) {
 	sendDataToDisplays(b)
 }
 
-type profileBinData struct {
-	X  float32 `json:"x"` // X values
-	B0 float32 // Beam 0 value
-	B1 float32 // Beam 1 value
-	B2 float32 // Beam 2 value
-	B3 float32 // Beam 3 value
-}
-
-type profileData1 struct {
-	ID              string // Data ID
-	SerialNum       string // Serial Number
-	SubsystemConfig string // Subystem configuration
-	Data            string // JSON Data
-	Options         string // JSON Options
-}
-
+// sendProfilePlotData will accumulate the amplitude and correlation data
+// to pass to the display.
 func sendProfilePlotData(ens rti.Ensemble) {
 
-	//var ampData = make([]profileBinData, ens.AmplitudeData.Base.NumElements)
-	//var corrData = make([]profileBinData, ens.AmplitudeData.Base.NumElements)
-	var ampData []profileBinData
-	var corrData []profileBinData
+	// Create the data struct
+	ampProfileB0 := &profileBeamData{
+		Color: "#ff7f0e", // Color of the plot
+		Key:   "B0",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
 
+	ampProfileB1 := &profileBeamData{
+		Color: "#2ca02c", // Color of the plot
+		Key:   "B1",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	ampProfileB2 := &profileBeamData{
+		Color: "#7777ff", // Color of the plot
+		Key:   "B2",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	ampProfileB3 := &profileBeamData{
+		Color: "#d67777", // Color of the plot
+		Key:   "B3",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	corrProfileB0 := &profileBeamData{
+		Color: "#ff7f0e", // Color of the plot
+		Key:   "B0",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	corrProfileB1 := &profileBeamData{
+		Color: "#2ca02c", // Color of the plot
+		Key:   "B1",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	corrProfileB2 := &profileBeamData{
+		Color: "#7777ff", // Color of the plot
+		Key:   "B2",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	corrProfileB3 := &profileBeamData{
+		Color: "#d67777", // Color of the plot
+		Key:   "B3",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	profData := &profileData{
+		ID:        profileID,                                  // ID
+		SerialNum: ens.EnsembleData.SerialNumber.SerialNumber, // Serial Data
+		CepoIndex: ens.EnsembleData.SubsystemConfig.CepoIndex, // Subsystem Config
+	}
+
+	//for bin := int(ens.AmplitudeData.Base.NumElements - 1); bin >= 0; bin-- {
 	for bin := 0; bin < int(ens.AmplitudeData.Base.NumElements); bin++ {
-		ampBinData := profileBinData{}
-		ampBinData.X = float32(bin)
-		corrBinData := profileBinData{}
-		corrBinData.X = float32(bin)
+		for beam := 0; beam < int(ens.AmplitudeData.Base.ElementMultiplier); beam++ {
+			if beam == 0 {
+				var ampData = []float32{ens.AmplitudeData.Amplitude[bin][beam], float32(bin)} // Create point to hold [key, value]
+				ampProfileB0.Values = append(ampProfileB0.Values, ampData)                    // Add the key and value array to array
+
+				var corrData = []float32{ens.CorrelationData.Correlation[bin][beam], float32(bin)} // Create point to hold [key, value]
+				corrProfileB0.Values = append(corrProfileB0.Values, corrData)                      // Add the key and value array to array
+			}
+			if beam == 1 {
+				var ampData = []float32{ens.AmplitudeData.Amplitude[bin][beam], float32(bin)} // Create point to hold [key, value]
+				ampProfileB1.Values = append(ampProfileB1.Values, ampData)                    // Add the key and value array to array
+
+				var corrData = []float32{ens.CorrelationData.Correlation[bin][beam], float32(bin)} // Create point to hold [key, value]
+				corrProfileB1.Values = append(corrProfileB1.Values, corrData)                      // Add the key and value array to array
+			}
+			if beam == 2 {
+				var ampData = []float32{ens.AmplitudeData.Amplitude[bin][beam], float32(bin)} // Create point to hold [key, value]
+				ampProfileB2.Values = append(ampProfileB2.Values, ampData)                    // Add the key and value array to array
+
+				var corrData = []float32{ens.CorrelationData.Correlation[bin][beam], float32(bin)} // Create point to hold [key, value]
+				corrProfileB2.Values = append(corrProfileB2.Values, corrData)                      // Add the key and value array to array
+			}
+			if beam == 3 {
+				var ampData = []float32{ens.AmplitudeData.Amplitude[bin][beam], float32(bin)} // Create point to hold [key, value]
+				ampProfileB3.Values = append(ampProfileB3.Values, ampData)                    // Add the key and value array to array
+
+				var corrData = []float32{ens.CorrelationData.Correlation[bin][beam], float32(bin)} // Create point to hold [key, value]
+				corrProfileB3.Values = append(corrProfileB3.Values, corrData)                      // Add the key and value array to array
+			}
+		}
+	}
+
+	// Set the data
+	profData.AmpData = append(profData.AmpData, *ampProfileB0)
+	profData.AmpData = append(profData.AmpData, *ampProfileB1)
+	profData.AmpData = append(profData.AmpData, *ampProfileB2)
+	profData.AmpData = append(profData.AmpData, *ampProfileB3)
+
+	profData.CorrData = append(profData.CorrData, *corrProfileB0)
+	profData.CorrData = append(profData.CorrData, *corrProfileB1)
+	profData.CorrData = append(profData.CorrData, *corrProfileB2)
+	profData.CorrData = append(profData.CorrData, *corrProfileB3)
+
+	// Convert the JSON to byte array
+	b, err := json.Marshal(profData)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// Send the data to the display
+	sendDataToDisplays(b)
+}
+
+// sendProfileRickshawPlotData will accumulate the amplitude and correlation data
+// to pass to the display.
+func sendProfileRickshawPlotData(ens rti.Ensemble) {
+
+	// Create the data struct
+	ampProfileB0 := &lineRickshawData{
+		Color: "#ff7f0e", // Color of the plot
+		Key:   "B0",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	ampProfileB1 := &lineRickshawData{
+		Color: "#2ca02c", // Color of the plot
+		Key:   "B1",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	ampProfileB2 := &lineRickshawData{
+		Color: "#7777ff", // Color of the plot
+		Key:   "B2",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	ampProfileB3 := &lineRickshawData{
+		Color: "#d67777", // Color of the plot
+		Key:   "B3",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	corrProfileB0 := &lineRickshawData{
+		Color: "#ff7f0e", // Color of the plot
+		Key:   "B0",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	corrProfileB1 := &lineRickshawData{
+		Color: "#2ca02c", // Color of the plot
+		Key:   "B1",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	corrProfileB2 := &lineRickshawData{
+		Color: "#7777ff", // Color of the plot
+		Key:   "B2",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	corrProfileB3 := &lineRickshawData{
+		Color: "#d67777", // Color of the plot
+		Key:   "B3",      // Key for the data
+		Area:  false,     // Flag for area plot
+	}
+
+	profData := &profileRickshawData{
+		ID:        profileRickshawID,                          // ID
+		SerialNum: ens.EnsembleData.SerialNumber.SerialNumber, // Serial Data
+		CepoIndex: ens.EnsembleData.SubsystemConfig.CepoIndex, // Subsystem Config
+	}
+
+	//for bin := int(ens.AmplitudeData.Base.NumElements - 1); bin >= 0; bin-- {
+	for bin := 0; bin < int(ens.AmplitudeData.Base.NumElements); bin++ {
+		for beam := 0; beam < int(ens.AmplitudeData.Base.ElementMultiplier); beam++ {
+			if beam == 0 {
+				ampData := pointRickshawData{X: ens.AmplitudeData.Amplitude[bin][beam], Y: float32(bin)} // Create point to hold [key, value]
+				ampProfileB0.Data = append(ampProfileB0.Data, ampData)                                   // Add the key and value array to array
+
+				corrData := pointRickshawData{X: ens.CorrelationData.Correlation[bin][beam], Y: float32(bin)} // Create point to hold [key, value]
+				corrProfileB0.Data = append(corrProfileB0.Data, corrData)                                     // Add the key and value array to array
+			}
+			if beam == 1 {
+				ampData := pointRickshawData{X: ens.AmplitudeData.Amplitude[bin][beam], Y: float32(bin)} // Create point to hold [key, value]
+				ampProfileB1.Data = append(ampProfileB1.Data, ampData)                                   // Add the key and value array to array
+
+				corrData := pointRickshawData{X: ens.CorrelationData.Correlation[bin][beam], Y: float32(bin)} // Create point to hold [key, value]
+				corrProfileB1.Data = append(corrProfileB1.Data, corrData)                                     // Add the key and value array to array
+			}
+			if beam == 2 {
+				ampData := pointRickshawData{X: ens.AmplitudeData.Amplitude[bin][beam], Y: float32(bin)} // Create point to hold [key, value]
+				ampProfileB2.Data = append(ampProfileB2.Data, ampData)                                   // Add the key and value array to array
+
+				corrData := pointRickshawData{X: ens.CorrelationData.Correlation[bin][beam], Y: float32(bin)} // Create point to hold [key, value]
+				corrProfileB2.Data = append(corrProfileB2.Data, corrData)                                     // Add the key and value array to array
+			}
+			if beam == 3 {
+				ampData := pointRickshawData{X: ens.AmplitudeData.Amplitude[bin][beam], Y: float32(bin)} // Create point to hold [key, value]
+				ampProfileB3.Data = append(ampProfileB3.Data, ampData)                                   // Add the key and value array to array
+
+				corrData := pointRickshawData{X: ens.CorrelationData.Correlation[bin][beam], Y: float32(bin)} // Create point to hold [key, value]
+				corrProfileB3.Data = append(corrProfileB3.Data, corrData)                                     // Add the key and value array to array
+			}
+		}
+	}
+
+	profData.AmpB0Data = *ampProfileB0
+	profData.AmpB1Data = *ampProfileB1
+	profData.AmpB2Data = *ampProfileB2
+	profData.AmpB3Data = *ampProfileB3
+	profData.CorrB0Data = *corrProfileB0
+	profData.CorrB1Data = *corrProfileB1
+	profData.CorrB2Data = *corrProfileB2
+	profData.CorrB3Data = *corrProfileB3
+
+	// Convert the JSON to byte array
+	b, err := json.Marshal(profData)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// Send the data to the display
+	sendDataToDisplays(b)
+}
+
+// sendProfileC3PlotData will accumulate the amplitude and correlation data
+// to pass to the display.
+func sendProfileC3PlotData(ens rti.Ensemble) {
+
+	profData := &profileC3Data{
+		ID:        profileC3ID,                                // ID
+		SerialNum: ens.EnsembleData.SerialNumber.SerialNumber, // Serial Data
+		CepoIndex: ens.EnsembleData.SubsystemConfig.CepoIndex, // Subsystem Config
+	}
+
+	//for bin := int(ens.AmplitudeData.Base.NumElements - 1); bin >= 0; bin-- {
+	for bin := 0; bin < int(ens.AmplitudeData.Base.NumElements); bin++ {
+		// First bin location
+		firstBinLoc := ens.AncillaryData.FirstBinRange + (ens.AncillaryData.BinSize * float32(bin))
+		profData.AmpXAxis = append(profData.AmpXAxis, float32(bin))
+		profData.CorrXAxis = append(profData.CorrXAxis, firstBinLoc)
 
 		for beam := 0; beam < int(ens.AmplitudeData.Base.ElementMultiplier); beam++ {
 			if beam == 0 {
-				ampBinData.B0 = ens.AmplitudeData.Amplitude[bin][beam]
-				corrBinData.B0 = ens.CorrelationData.Correlation[bin][beam]
+				profData.AmpB0Data = append(profData.AmpB0Data, ens.AmplitudeData.Amplitude[bin][beam])
+				profData.CorrB0Data = append(profData.CorrB0Data, ens.CorrelationData.Correlation[bin][beam])
 			}
 			if beam == 1 {
-				ampBinData.B1 = ens.AmplitudeData.Amplitude[bin][beam]
-				corrBinData.B1 = ens.CorrelationData.Correlation[bin][beam]
+				profData.AmpB1Data = append(profData.AmpB1Data, ens.AmplitudeData.Amplitude[bin][beam])
+				profData.CorrB1Data = append(profData.CorrB1Data, ens.CorrelationData.Correlation[bin][beam])
 			}
 			if beam == 2 {
-				ampBinData.B2 = ens.AmplitudeData.Amplitude[bin][beam]
-				corrBinData.B2 = ens.CorrelationData.Correlation[bin][beam]
+				profData.AmpB2Data = append(profData.AmpB2Data, ens.AmplitudeData.Amplitude[bin][beam])
+				profData.CorrB2Data = append(profData.CorrB2Data, ens.CorrelationData.Correlation[bin][beam])
 			}
 			if beam == 3 {
-				ampBinData.B3 = ens.AmplitudeData.Amplitude[bin][beam]
-				corrBinData.B3 = ens.CorrelationData.Correlation[bin][beam]
+				profData.AmpB3Data = append(profData.AmpB3Data, ens.AmplitudeData.Amplitude[bin][beam])
+				profData.CorrB3Data = append(profData.CorrB3Data, ens.CorrelationData.Correlation[bin][beam])
 			}
 		}
-
-		ampData = append(ampData, ampBinData)
-		corrData = append(corrData, corrBinData)
-	}
-
-	// Options string
-	options := "{ series: [ {y: 'B0', color: 'steelblue', thickness: '2px', type: 'line', striped: true, label: 'B0'}, {y: 'B1', color: '#ff7f0e', thickness: '2px', type: 'line', striped: true, label: 'B1'}, {y: 'B2', color: '#2ca02c', thickness: '2px', type: 'line', striped: true, label: 'B2'}, {y: 'B3', color: 'lightsteelblue', thickness: '2px', type: 'line', striped: true, label: 'B3'}], lineMode: 'linear',}"
-	if ens.EnsembleData.NumBeams == 1 {
-		options = "{ series: [ {y: 'B0', color: 'steelblue', thickness: '2px', type: 'line', striped: true, label: 'B0'}], lineMode: 'linear',}"
 	}
 
 	// Convert the JSON to byte array
-	ampByte, err := json.Marshal(ampData)
+	b, err := json.Marshal(profData)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-
-	// Convert the JSON to byte array
-	corrByte, err1 := json.Marshal(corrData)
-	if err1 != nil {
-		log.Println(err1)
-		return
-	}
-
-	ampProfile := &profileData1{
-		ID:              profileAmpID,
-		SerialNum:       ens.EnsembleData.SerialNumber.SerialNumber, // Serial Data
-		SubsystemConfig: "",                                         // Subsystem Config
-		Data:            string(ampByte),                            // Amplitude data
-		Options:         options,                                    // Options
-	}
-
-	corrProfile := &profileData1{
-		ID:              profileCorrID,
-		SerialNum:       ens.EnsembleData.SerialNumber.SerialNumber, // Serial Data
-		SubsystemConfig: "",                                         // Subsystem Config
-		Data:            string(corrByte),                           // Correlation data
-		Options:         options,                                    // Options
-	}
-
-	// Convert the JSON to byte array
-	ampProfileJSON, err := json.Marshal(ampProfile)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	// Convert the JSON to byte array
-	corrProfileJSON, err := json.Marshal(corrProfile)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	//log.Printf("%s", ampProfile.Data)
 
 	// Send the data to the display
-	sendDataToDisplays(ampProfileJSON)
-	sendDataToDisplays(corrProfileJSON)
-
+	sendDataToDisplays(b)
 }
 
-func sendProfile(ens rti.Ensemble) {
-	// Create the data struct
-	profile := &profileData{
-		ID:              adcpEnsembleID,                             // ID
-		SerialNum:       ens.EnsembleData.SerialNumber.SerialNumber, // Serial Data
-		SubsystemConfig: "",                                         // Subsystem Config
-		Labels:          make([]string, ens.AmplitudeData.Base.NumElements),
-		Beam0Amp:        make([]float32, ens.AmplitudeData.Base.NumElements),
-		Beam1Amp:        make([]float32, ens.AmplitudeData.Base.NumElements),
-		Beam2Amp:        make([]float32, ens.AmplitudeData.Base.NumElements),
-		Beam3Amp:        make([]float32, ens.AmplitudeData.Base.NumElements),
-		Beam0Corr:       make([]float32, ens.AmplitudeData.Base.NumElements),
-		Beam1Corr:       make([]float32, ens.AmplitudeData.Base.NumElements),
-		Beam2Corr:       make([]float32, ens.AmplitudeData.Base.NumElements),
-		Beam3Corr:       make([]float32, ens.AmplitudeData.Base.NumElements),
+// sendHprPlotData will accumulate the heading, pitch and roll data
+// to pass to the display.
+func sendHprPlotData(ens rti.Ensemble) {
+
+	// Accumulate heading
+	heading.Values = append(heading.Values, []float32{float32(ens.EnsembleData.EnsembleNumber), ens.AncillaryData.Heading})
+	if len(heading.Values) > 20 {
+		heading.Values = heading.Values[1:]
 	}
 
-	//for bin := 0; bin < int(ens.AmplitudeData.Base.NumElements); bin++ {
-	for beam := 0; beam < int(ens.AmplitudeData.Base.ElementMultiplier); beam++ {
-		if beam == 0 {
-			profile.Beam0Amp = ens.AmplitudeData.Amplitude[0:ens.AmplitudeData.Base.NumElements][0]
-			profile.Beam0Corr = ens.CorrelationData.Correlation[0:ens.CorrelationData.Base.NumElements][0]
-		}
-		if beam == 1 {
-			profile.Beam1Amp = ens.AmplitudeData.Amplitude[0:ens.AmplitudeData.Base.NumElements][1]
-			profile.Beam1Corr = ens.CorrelationData.Correlation[0:ens.CorrelationData.Base.NumElements][1]
-		}
-		if beam == 2 {
-			profile.Beam2Amp = ens.AmplitudeData.Amplitude[0:ens.AmplitudeData.Base.NumElements][2]
-			profile.Beam2Corr = ens.CorrelationData.Correlation[0:ens.CorrelationData.Base.NumElements][2]
-		}
-		if beam == 3 {
-			profile.Beam3Amp = ens.AmplitudeData.Amplitude[0:ens.AmplitudeData.Base.NumElements][3]
-			profile.Beam3Corr = ens.CorrelationData.Correlation[0:ens.CorrelationData.Base.NumElements][3]
-		}
+	// Accumulate pitch
+	pitch.Values = append(pitch.Values, []float32{float32(ens.EnsembleData.EnsembleNumber), ens.AncillaryData.Pitch})
+	if len(pitch.Values) > 20 {
+		pitch.Values = pitch.Values[1:]
 	}
+
+	// Accumulate roll
+	roll.Values = append(roll.Values, []float32{float32(ens.EnsembleData.EnsembleNumber), ens.AncillaryData.Roll})
+	if len(roll.Values) > 20 {
+		roll.Values = roll.Values[1:]
+	}
+
+	hpr := &hprData{
+		ID:        hprID,                                      // ID
+		SerialNum: ens.EnsembleData.SerialNumber.SerialNumber, // Serial Data
+		CepoIndex: ens.EnsembleData.SubsystemConfig.CepoIndex, // Subsystem Config
+	}
+
+	hpr.HprData = append(hpr.HprData, *heading)
+	hpr.HprData = append(hpr.HprData, *pitch)
+	hpr.HprData = append(hpr.HprData, *roll)
 
 	// Convert the JSON to byte array
-	b, err := json.Marshal(profile)
+	b, err := json.Marshal(hpr)
 	if err != nil {
 		log.Println(err)
 		return

@@ -6,14 +6,35 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <!--script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script-->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.8.4/angular-chart.min.js"></script>
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script-->
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.8.4/angular-chart.min.js"></script-->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.8.4/angular-chart.min.css">
-<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+
+<!--script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script-->
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.js"></script>
+
 <script src="//cdn.rawgit.com/n3-charts/line-chart/1.1.11/build/line-chart.min.js"></script>
 
+<!--script src="https://rawgit.com/mbostock/d3/master/d3.min.js"></script-->
+<!--script src="https://rawgit.com/novus/nvd3/v1.1.15-beta/nv.d3.min.js"></script-->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.js"></script>
+<!--script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.js"></script-->
+<script src="https://rawgit.com/krispo/angular-nvd3/master/dist/angular-nvd3.js"></script>
+
+<!--script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-nvd3-directives/0.0.7/angularjs-nvd3-directives-min.js"></script-->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-nvd3-directives/0.0.7/angularjs-nvd3-directives.js"></script>
+
+<link rel="stylesheet" href="https://rawgit.com/novus/nvd3/v1.1.15-beta/nv.d3.min.css"/>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rickshaw/1.5.1/rickshaw.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+	<script>
+		jQuery.noConflict();
+	</script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
 
 <head>
+	<meta charset="utf-8">
 	<style>
 	ul
 	{
@@ -142,42 +163,146 @@
 	</div>
 
   <div class="row">
-    <div class="col-lg-6">
+    <!--div class="col-lg-6">
       <canvas id="line" class="chart chart-line" chart-data="data"
         chart-labels="labels" chart-legend="true" chart-series="series"
         chart-click="onClick" >
       </canvas>
-    </div>
+    </div-->
     <div class="col-lg-6">
       <canvas id="hpr" class="chart chart-line" chart-data="hdgData"
         chart-labels="hdgLabels" chart-legend="true" chart-series="hdgSeries"
         chart-click="onClick" >
       </canvas>
     </div>
-    <div class="col-lg-6">
-      <linechart data="ampPlotData" options="ampPlotOptions" mode="" width="500" height="500"></linechart>
-    </div>
-    <div class="col-lg-6">
-      <linechart data="corrPlotData" options="ampPlotOptions" mode="" width="500" height="500"></linechart>
-    </div>
-    <div class="col-lg-6 col-sm-12">
-              <div class="panel panel-default">
-                <div class="panel-heading">Chart Data</div>
-                <div class="panel-body">
-                  <table class="table table-responsive table-condensed table-striped">
-                    <tr>
+	</div>
+	<div class="row">
+		<div class="col-lg-5">
+			<nvd3-line-chart
+			    data="ampData"
+			    width="400"
+			    height="200"
+					margin="{left:50,top:0,bottom:0,right:50}"
+					yaxisrange="[height,0]"
+			    showXAxis="true"
+			    showYAxis="true"
+					showLegend="true"
+					forcex="[0,120]"
+					interactive="true"
+					tooltips="true">
+			</nvd3-line-chart>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-5">
+			<nvd3-line-chart
+					data="corrData"
+					width="400"
+					height="200"
+					margin="{left:50,top:0,bottom:0,right:50}"
+					yaxisrange="[height,0]"
+					showXAxis="true"
+					showYAxis="true"
+					showLegend="true"
+					forcex="[0,1]"
+					interactive="true"
+					tooltips="true">
+			</nvd3-line-chart>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-5">
+			<nvd3-line-chart
+					data="hprData"
+					width="400"
+					height="200"
+					margin="{left:100,top:0,bottom:0,right:50}"
+					yaxisrange="[height,0]"
+					showXAxis="true"
+					showYAxis="true"
+					showLegend="true"
+					interactive="true"
+					tooltips="true">
+			</nvd3-line-chart>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-5">
+			<div id='chart1' style='height:500px'>
+			  <svg></svg>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-5">
+			<nvd3 options="options" data="hprData"></nvd3>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-lg-5">
+			<form id="side_panel">
+				<h1>Random Data in the Future</h1>
+				<section><div id="legend"></div></section>
+				<section>
+					<div id="renderer_form" class="toggler">
+						<input type="radio" name="renderer" id="area" value="area" checked>
+						<label for="area">area</label>
+						<input type="radio" name="renderer" id="bar" value="bar">
+						<label for="bar">bar</label>
+						<input type="radio" name="renderer" id="line" value="line">
+						<label for="line">line</label>
+						<input type="radio" name="renderer" id="scatter" value="scatterplot">
+						<label for="scatter">scatter</label>
+					</div>
+				</section>
+				<section>
+					<div id="offset_form">
+						<label for="stack">
+							<input type="radio" name="offset" id="stack" value="zero" checked>
+							<span>stack</span>
+						</label>
+						<label for="stream">
+							<input type="radio" name="offset" id="stream" value="wiggle">
+							<span>stream</span>
+						</label>
+						<label for="pct">
+							<input type="radio" name="offset" id="pct" value="expand">
+							<span>pct</span>
+						</label>
+						<label for="value">
+							<input type="radio" name="offset" id="value" value="value">
+							<span>value</span>
+						</label>
+					</div>
+					<div id="interpolation_form">
+						<label for="cardinal">
+							<input type="radio" name="interpolation" id="cardinal" value="cardinal" checked>
+							<span>cardinal</span>
+						</label>
+						<label for="linear">
+							<input type="radio" name="interpolation" id="linear" value="linear">
+							<span>linear</span>
+						</label>
+						<label for="step">
+							<input type="radio" name="interpolation" id="step" value="step-after">
+							<span>step</span>
+						</label>
+					</div>
+				</section>
+				<section>
+					<h6>Smoothing</h6>
+					<div id="smoother"></div>
+				</section>
+				<section></section>
+			</form>
 
-                    </tr>
-                    <tr ng-repeat="dataSet in hdgData">
-
-                    </tr>
-                  </table>
-              <button type="button" class="btn btn-primary pull-right" ng-click="randomize()">Randomize</button>
-                </div>
-              </div>
-            </div>
-
-  </div>
+			<div id="chart_container">
+				<div id="chart"></div>
+				<div id="timeline"></div>
+				<div id="preview"></div>
+			</div>
+		</div>
+	</div>
 
 </div>
 
@@ -189,7 +314,7 @@ jQuery(document).ready(function ($) {
         $('#tabs').tab();
     });
 
-var app = angular.module('echo', ['chart.js', 'n3-line-chart']);
+var app = angular.module('echo', ['nvd3', 'nvd3ChartDirectives']);
 app.controller('AdcpCtrl', function($scope) {
 
 	// Flag used to find the Serial Port list
@@ -208,29 +333,263 @@ app.controller('AdcpCtrl', function($scope) {
 	// Websocket connection
 	$scope.conn = null;
 
-  $scope.labels = ["January", "February", "March", "April", "May", "June", "July"];
-  $scope.series = ['Series A', 'Series B'];
-  $scope.data = [
-    [65, 59, 80, 81, 56, 55, 40],
-    [28, 48, 40, 19, 86, 27, 90]
-  ];
+///////////////////////////////////////////////////////////////
 
-  $scope.ampPlotOptions = {
-    series: [
-      {y: 'B0', color: 'steelblue', thickness: '2px', type: 'line', striped: true, label: 'B0'},
-      {y: 'B1', color: '#ff7f0e', thickness: '2px', type: 'line', striped: true, label: 'B1'},
-      {y: 'B2', color: '#2ca02c', thickness: '2px', type: 'line', striped: true, label: 'B2'},
-      {y: 'B3', color: 'lightsteelblue', thickness: '2px', type: 'line', striped: true, label: 'B3'}],
-      lineMode: 'linear',
-    };
 
-  //$scope.testdata = [{"x":0,"B0":38.001507,"B1":38.76827,"B2":38.430435,"B3":37.997944},{"x":1,"B0":36.959843,"B1":38.247063,"B2":37.371746,"B3":37.499527},{"x":2,"B0":36.514256,"B1":37.87881,"B2":37.286716,"B3":36.98374},{"x":3,"B0":35.90004,"B1":38.23151,"B2":38.4583,"B3":36.52584},{"x":4,"B0":35.996815,"B1":37.84444,"B2":38.08054,"B3":36.44937},{"x":5,"B0":36.90269,"B1":38.36325,"B2":38.31654,"B3":36.445812},{"x":6,"B0":36.868732,"B1":37.49068,"B2":37.486103,"B3":36.12664},{"x":7,"B0":36.51291,"B1":38.275772,"B2":37.789238,"B3":36.660854},{"x":8,"B0":36.387455,"B1":37.72268,"B2":37.71038,"B3":37.185066},{"x":9,"B0":37.082146,"B1":38.045975,"B2":37.927567,"B3":36.871506},{"x":10,"B0":36.854874,"B1":37.926907,"B2":38.076122,"B3":37.167328},{"x":11,"B0":36.22549,"B1":38.199535,"B2":38.0375,"B3":36.933525},{"x":12,"B0":37.038513,"B1":37.84534,"B2":38.338783,"B3":36.860596},{"x":13,"B0":37.375813,"B1":38.963356,"B2":37.751778,"B3":36.832558},{"x":14,"B0":36.557842,"B1":38.519505,"B2":38.099224,"B3":36.89949},{"x":15,"B0":36.79472,"B1":38.66629,"B2":37.600086,"B3":37.150146},{"x":16,"B0":36.22694,"B1":38.565216,"B2":38.285477,"B3":36.580235},{"x":17,"B0":36.656963,"B1":37.859356,"B2":37.731327,"B3":36.949303},{"x":18,"B0":36.985207,"B1":37.907585,"B2":37.99559,"B3":37.112278},{"x":19,"B0":36.373184,"B1":37.951683,"B2":38.247814,"B3":36.288326},{"x":20,"B0":36.16596,"B1":38.11096,"B2":37.69341,"B3":36.898624},{"x":21,"B0":36.553547,"B1":37.80579,"B2":37.257927,"B3":36.14695},{"x":22,"B0":37.30977,"B1":37.743023,"B2":37.866608,"B3":36.407238},{"x":23,"B0":36.630188,"B1":37.967106,"B2":37.303566,"B3":36.51655},{"x":24,"B0":36.863213,"B1":37.597572,"B2":38.28631,"B3":36.901485},{"x":25,"B0":36.77613,"B1":37.59254,"B2":37.7377,"B3":36.957924},{"x":26,"B0":37.328213,"B1":37.854904,"B2":38.435078,"B3":36.58246},{"x":27,"B0":37.018402,"B1":38.409275,"B2":36.440895,"B3":36.89953},{"x":28,"B0":36.202087,"B1":37.50076,"B2":38.57007,"B3":37.16545},{"x":29,"B0":36.84858,"B1":40.500908,"B2":37.949085,"B3":36.72157}];
+
+// set up our data series with 150 random data points
+
+var seriesData = [ [], [], [], [], [], [], [], [], [] ];
+var random = new Rickshaw.Fixtures.RandomData(150);
+
+for (var i = 0; i < 150; i++) {
+	random.addData(seriesData);
+}
+
+var palette = new Rickshaw.Color.Palette( { scheme: 'classic9' } );
+
+// instantiate our graph!
+
+var graph = new Rickshaw.Graph( {
+	element: document.getElementById("chart"),
+	width: 900,
+	height: 500,
+	renderer: 'area',
+	stroke: true,
+	preserve: true,
+	series: [
+		{
+			color: palette.color(),
+			data: seriesData[0],
+			name: 'Moscow'
+		}, {
+			color: palette.color(),
+			data: seriesData[1],
+			name: 'Shanghai'
+		}, {
+			color: palette.color(),
+			data: seriesData[2],
+			name: 'Amsterdam'
+		}, {
+			color: palette.color(),
+			data: seriesData[3],
+			name: 'Paris'
+		}, {
+			color: palette.color(),
+			data: seriesData[4],
+			name: 'Tokyo'
+		}, {
+			color: palette.color(),
+			data: seriesData[5],
+			name: 'London'
+		}, {
+			color: palette.color(),
+			data: seriesData[6],
+			name: 'New York'
+		}
+	]
+} );
+
+graph.render();
+
+var preview = new Rickshaw.Graph.RangeSlider( {
+	graph: graph,
+	element: document.getElementById('preview'),
+} );
+
+var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+	graph: graph,
+	xFormatter: function(x) {
+		return new Date(x * 1000).toString();
+	}
+} );
+
+var annotator = new Rickshaw.Graph.Annotate( {
+	graph: graph,
+	element: document.getElementById('timeline')
+} );
+
+var legend = new Rickshaw.Graph.Legend( {
+	graph: graph,
+	element: document.getElementById('legend')
+
+} );
+
+var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
+	graph: graph,
+	legend: legend
+} );
+
+var order = new Rickshaw.Graph.Behavior.Series.Order( {
+	graph: graph,
+	legend: legend
+} );
+
+var highlighter = new Rickshaw.Graph.Behavior.Series.Highlight( {
+	graph: graph,
+	legend: legend
+} );
+
+var smoother = new Rickshaw.Graph.Smoother( {
+	graph: graph,
+	element: document.querySelector('#smoother')
+} );
+
+var ticksTreatment = 'glow';
+
+var xAxis = new Rickshaw.Graph.Axis.Time( {
+	graph: graph,
+	ticksTreatment: ticksTreatment,
+	timeFixture: new Rickshaw.Fixtures.Time.Local()
+} );
+
+xAxis.render();
+
+var yAxis = new Rickshaw.Graph.Axis.Y( {
+	graph: graph,
+	tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+	ticksTreatment: ticksTreatment
+} );
+
+yAxis.render();
+
+
+var controls = new RenderControls( {
+	element: document.querySelector('form'),
+	graph: graph
+} );
+
+// add some data every so often
+
+var messages = [
+	"Changed home page welcome message",
+	"Minified JS and CSS",
+	"Changed button color from blue to green",
+	"Refactored SQL query to use indexed columns",
+	"Added additional logging for debugging",
+	"Fixed typo",
+	"Rewrite conditional logic for clarity",
+	"Added documentation for new methods"
+];
+
+setInterval( function() {
+	random.removeData(seriesData);
+	random.addData(seriesData);
+	graph.update();
+
+}, 3000 );
+
+function addAnnotation(force) {
+	if (messages.length > 0 && (force || Math.random() >= 0.95)) {
+		annotator.add(seriesData[2][seriesData[2].length-1].x, messages.shift());
+		annotator.update();
+	}
+}
+
+addAnnotation(true);
+setTimeout( function() { setInterval( addAnnotation, 6000 ) }, 6000 );
+
+var previewXAxis = new Rickshaw.Graph.Axis.Time({
+	graph: preview.previews[0],
+	timeFixture: new Rickshaw.Fixtures.Time.Local(),
+	ticksTreatment: ticksTreatment
+});
+
+previewXAxis.render();
+
+
+
+
+////////////////////////////////////////////////////////////////
+
+	$scope.data1 = [
+		{
+			"key": "Series 1",
+			"values":	[[65, 0], [59, 1], [80, 2], [81, 3], [56, 4], [55, 5], [40, 6]],
+		}
+	];
+
+	$scope.options = {
+            chart: {
+                type: 'lineChart',
+                height: 450,
+                margin : {
+                    top: 20,
+                    right: 20,
+                    bottom: 40,
+                    left: 55
+                },
+                x: function(d){ return d.x; },
+                y: function(d){ return d.y; },
+                useInteractiveGuideline: true,
+                dispatch: {
+                    stateChange: function(e){ console.log("stateChange"); },
+                    changeState: function(e){ console.log("changeState"); },
+                    tooltipShow: function(e){ console.log("tooltipShow"); },
+                    tooltipHide: function(e){ console.log("tooltipHide"); }
+                },
+                xAxis: {
+                    axisLabel: 'Time (ms)'
+                },
+                yAxis: {
+                    axisLabel: 'Voltage (v)',
+                    tickFormat: function(d){
+                        return d3.format('.02f')(d);
+                    },
+                    axisLabelDistance: 30
+                },
+                callback: function(chart){
+                    console.log("!!! lineChart callback !!!");
+                }
+            },
+            title: {
+                enable: true,
+                text: 'Title for Line Chart'
+            },
+            subtitle: {
+                enable: true,
+                text: 'Subtitle for simple line chart. Lorem ipsum dolor sit amet, at eam blandit sadipscing, vim adhuc sanctus disputando ex, cu usu affert alienum urbanitas.',
+                css: {
+                    'text-align': 'center',
+                    'margin': '10px 13px 0px 7px'
+                }
+            },
+            caption: {
+                enable: true,
+                html: '<b>Figure 1.</b> Lorem ipsum dolor sit amet, at eam blandit sadipscing, <span style="text-decoration: underline;">vim adhuc sanctus disputando ex</span>, cu usu affert alienum urbanitas. <i>Cum in purto erat, mea ne nominavi persecuti reformidans.</i> Docendi blandit abhorreant ea has, minim tantas alterum pro eu. <span style="color: darkred;">Exerci graeci ad vix, elit tacimates ea duo</span>. Id mel eruditi fuisset. Stet vidit patrioque in pro, eum ex veri verterem abhorreant, id unum oportere intellegam nec<sup>[1, <a href="https://github.com/krispo/angular-nvd3" target="_blank">2</a>, 3]</sup>.',
+                css: {
+                    'text-align': 'justify',
+                    'margin': '10px 13px 0px 7px'
+                }
+            }
+        };
+
+		// var chart = nv.models.scatterChart()
+		//               .showDistX(true)
+		//               .showDistY(true)
+		//               .color(d3.scale.category10().range());
+		var chart1 = nv.models.lineChart();
+
+		chart1.xAxis.tickFormat(d3.format('.02f')).axisLabel('Precipitation (inch)');
+		chart1.yAxis.tickFormat(d3.format('.02f')).axisLabel('Time');
+
+		nv.addGraph(loadGraph);
+
+		function loadGraph() {
+		  d3.select('#chart1 svg')
+		      .datum($scope.hprData)
+		    .transition().duration(500)
+		      .call(chart1);
+		  nv.utils.windowResize(chart1.update);
+		  return chart1;
+		};
+
 
   $scope.hdgLabels = [];
   $scope.hdgSeries = ['Heading', 'Pitch', 'Roll'];
   $scope.hdgData = [[], [], []];
-  Chart.defaults.global.responsive = true;
-  Chart.defaults.global.animation = false;
+  //Chart.defaults.global.responsive = true;
+  //Chart.defaults.global.animation = false;
 
   $scope.onClick = function (points, evt) {
     console.log(points, evt);
@@ -526,6 +885,17 @@ WebsocketConnect();
         setProfileCorrData(jsonData)
       }
 
+      // Profile Data
+      if(jsonData.ID == 'ProfileData') {
+        setProfileData(jsonData)
+      }
+
+			// HPR Data
+			if(jsonData.ID == 'HprData') {
+				setHprData(jsonData)
+							loadGraph();
+			}
+
 		}
   }
 
@@ -551,20 +921,23 @@ WebsocketConnect();
   }
 
   function setProfileAmpData(json) {
-
     $scope.ampPlotData = JSON.parse(json.Data);
-    //console.log(JSON.parse(json.Options));
-
-    //$scope.ampPlotOptions = JSON.parse(json.Options);
   }
 
   function setProfileCorrData(json) {
-
     $scope.corrPlotData = JSON.parse(json.Data);
-    //console.log(JSON.parse(json.Options));
-
-    //$scope.ampPlotOptions = JSON.parse(json.Options);
   }
+
+  function setProfileData(json) {
+    $scope.ampData = json.AmpData;
+		$scope.corrData = json.CorrData;
+  }
+
+	function setHprData(json) {
+		$scope.hprData = json.HprData;
+		//console.log($scope.hprData);
+		//console.log("hello");
+	}
 
 
 });
