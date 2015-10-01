@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script-->
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script-->
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.8.4/angular-chart.min.js"></script-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.8.4/angular-chart.min.css">
+
+<!--script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script-->
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.js"></script>
+
+<script src="//cdn.rawgit.com/n3-charts/line-chart/1.1.11/build/line-chart.min.js"></script>
+
+<!--script src="https://rawgit.com/mbostock/d3/master/d3.min.js"></script-->
+<!--script src="https://rawgit.com/novus/nvd3/v1.1.15-beta/nv.d3.min.js"></script-->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.js"></script>
+<!--script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.js"></script-->
+<script src="https://rawgit.com/krispo/angular-nvd3/master/dist/angular-nvd3.js"></script>
+
+<!--script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-nvd3-directives/0.0.7/angularjs-nvd3-directives-min.js"></script-->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-nvd3-directives/0.0.7/angularjs-nvd3-directives.js"></script>
+
+<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/c3/0.1.29/c3.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.js"></script>
+
+<link rel="stylesheet" href="https://rawgit.com/novus/nvd3/v1.1.15-beta/nv.d3.min.css"/>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rickshaw/1.5.1/rickshaw.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+	<script>
+		jQuery.noConflict();
+	</script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
+
+<head>
+	<meta charset="utf-8">
+	<style>
+	ul
+	{
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	}
+
+	</style>
+</head>
+
+<body>
+
+<div ng-app="echo" ng-controller="AdcpCtrl">
+
+<div class="row" style="margin: 10px">
+  <div class="col-sm-8">
+	   <div class="panel panel-default">
+		    <div class="panel-heading">ADCP
+			    <div class="btn-group pull-right" style="margin-right:6px;">
+					  <button class="btn btn-xs btn-default spconsole-clear" align="right" ng-click="clear()">CLEAR</button>
+					  <button type="button" class="btn btn-xs btn-default spconsole-pause "><span class="glyphicon glyphicon-ban-circle"></span></button>
+          </div>
+		    </div>
+
+			<div class="row">
+				<div class="col-sm-10">
+					<textarea data-ng-bind="messageStr" readonly rows="35" cols="100" id="serialPort_txtArea" ></textarea>
+				</div>
+			</div>
+
+			</div>
+		</div>
+
+		<div class="col-sm-4">
+
+			<div class="panel panel-default">
+				<div class="panel-heading">Ports and Settings</div>
+
+				<!--Tab Panel-->
+				<ul class="nav nav-tabs">
+					<li class="active">
+						<a href="#ports" data-toggle="tab">ADCPs
+							<button type="button" class="btn btn-xs btn-default spconsole-pause " ng-click="list()">
+								<span class="glyphicon glyphicon-refresh"></span>
+							</button>
+						</a>
+					</li>
+					<li class="">
+						<a href="#status" data-toggle="tab">Status</a>
+					</li>
+				</ul>
+				<!--Tab Content-->
+				<div class="tab-content">
+
+					<div id="ports" class="tab-pane fade in active">
+						<div class="row">
+							<div class="col-sm-10">
+								<ul ng-repeat="adcp in adcpList">
+									<li>
+										<div class="panel panel-default">
+                      <div class="panel-heading"><span data-ng-bind="adcp"></span></div>
+											<!--div class="panel-heading"><span data-ng-bind="port.Friendly"></div>
+											Baud: <select name="singleSelect" ng-model="port.Baud" ng-init="port.Baud" ng-options="baud for baud in [921600, 460800, 230400, 115200, 38400, 19200, 9600, 4800, 2400, 0]"></select><br>
+											Is Open: <span data-ng-bind="port.IsOpen"></span><br>
+											<button class="btn btn-xs btn-default" ng-click="connect(port)">Connect</button>
+											<button class="btn btn-xs btn-default" ng-click="disconnect(port)">Disconnect</button><br>
+											<button class="btn btn-xs btn-default" ng-click="recordStart(port)">Record</button>
+											<button class="btn btn-xs btn-default" ng-click="recordStop(port)">STOP</button>
+											<span data-ng-bind="port.fileSize"></span><br>
+											<input type="text" cols="75" placeholder="type here" ng-model="port.PortMsg" ng-enter="sendPortMsg()">
+											<button class="btn" ng-click="sendPortMsg(port, port.PortMsg)">Send</button>
+											<button class="btn" ng-click="sendPortStart(port)">START</button>
+											<button class="btn" ng-click="sendPortStop(port)">STOP</button>
+											<button class="btn" ng-click="sendPortBreak(port)">BREAK</button-->
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					<div id="status" class="tab-pane fade">
+						<div class="row">
+							<div class="col-sm-10">
+								<ul ng-repeat="m in statusMsgs track by $index">
+											<li><span data-ng-bind="m"></span></li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-sm-5">
+								<strong>Server:</strong>
+							</div>
+							<div class="col-md-10">
+								<input type="text" ng-model="serverAddr" placeholder="ADDRESS">
+								<button class="btn btn-default" ng-click="reconnectWebsocket()">Connect</button>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-sm-5">
+								<strong>Websocket Server:</strong>
+							</div>
+							<div class="col-sm-10">
+								<span data-ng-bind="webSocketAddr"></span>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-sm-5">
+								<strong>Websocket Status:</strong>
+							</div>
+							<div class="col-sm-10">
+								<span data-ng-bind="websocketState"></span>
+							</div>
+						</div>
+
+					</div><!--Status-->
+
+			</div>
+
+		</div>
+	</div>
+
+	</div>
+	<div class="row">
+		<div class="col-lg-5">
+			<div class='chart'>
+				<div id='ampChart'></div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class='chart'>
+			<div id='corrChart'></div>
+		</div>
+	</div>
+
+</div>
+
+<script>
+
+var app = angular.module('echo', []);
+app.controller('AdcpCtrl', function($scope) {
+
+	// Flag used to find the Serial Port list
+	var isUpdatePortList = false;
+
+  $scope.statusMsgs = [];
+  $scope.messageStr = "";
+	$scope.portList = "";
+	$scope.serverAddr = "192.168.0.152:8080/wsAdcp";
+	$scope.webSocketAddr = "ws://192.168.0.152:8080/wsAdcp";
+	$scope.websocketState = "";
+	$scope.singleSelect = null;
+
+	$scope.ConnectedPort = null;
+
+	// Websocket connection
+	$scope.conn = null;
+
+/////////////////////////////////////////////////
+
+var ampChart = null;
+var corrChart = null;
+
+/////////////////////////////////////////////////
+
+  $scope.hdgLabels = [];
+  $scope.hdgSeries = ['Heading', 'Pitch', 'Roll'];
+  $scope.hdgData = [[], [], []];
+  //Chart.defaults.global.responsive = true;
+  //Chart.defaults.global.animation = false;
+
+  $scope.onClick = function (points, evt) {
+    console.log(points, evt);
+  };
+  $scope.randomize = function () {
+      $scope.data = $scope.data.map(function (data) {
+        return data.map(function (y) {
+          y = y + Math.random() * 10 - 5;
+          return parseInt(y < 0 ? 0 : y > 100 ? 100 : y);
+        });
+      });
+    };
+
+	// Append the data so it will not be a large buffer
+  function appendLog(msg) {
+
+		// Convert the data to JSON
+		var jsonData = JSON.parse(msg);
+
+    // Display the JSON data
+		$scope.messageStr = msg;
+
+		// Always scroll to the bottom
+		var txtArea = document.getElementById('serialPort_txtArea');
+		txtArea.scrollTop = txtArea.scrollHeight;
+  }
+
+	// Append Status log.
+	function appendStatusLog(msg) {
+		var max = 10;
+		// Add element to front
+		$scope.statusMsgs.unshift(msg);
+
+		// If the array is to big, remove last element
+		if($scope.statusMsgs.length > max)
+		{
+			$scope.statusMsgs.splice($scope.statusMsgs.length-1, 1);
+		}
+	}
+
+	///
+	/// Update the port list
+	///
+	function updatePortsList(msg) {
+		$scope.portList += msg;
+
+		// Wait until the entire JSON message is received
+		// If greater than -1, then the end of the JSON string was found
+		if(msg.indexOf("]") > -1)
+		{
+			// Turn off looking for the list
+			isUpdatePortList = false;
+
+			// Remove the "list" command from the string result
+			$scope.portList = $scope.portList.replace("list", "");
+
+			// Convert to a JSON object
+			$scope.portList = JSON.parse($scope.portList);
+		}
+	}
+
+	function humanFileSize(bytes, si) {
+    var thresh = si ? 1000 : 1024;
+    if(Math.abs(bytes) < thresh) {
+        return bytes + ' B';
+    }
+    var units = si
+        ? ['kB','MB','GB','TB','PB','EB','ZB','YB']
+        : ['KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
+    var u = -1;
+    do {
+        bytes /= thresh;
+        ++u;
+    } while(Math.abs(bytes) >= thresh && u < units.length - 1);
+    return bytes.toFixed(1)+' '+units[u];
+}
+
+	///
+	/// Set the Websocket status
+	///
+	function setWebsocketStatus(msg) {
+		var state = conn.readyState;
+		if(state == 0)
+		{
+			$scope.websocketState = "CONNECTING";
+			appendStatusLog(msg + "WS CONNECTING");
+		}
+		else if(state == 1)
+		{
+			$scope.websocketState = "OPEN";
+			appendStatusLog(msg + "WS OPEN");
+		}
+		else if(state == 2)
+		{
+			$scope.websocketState = "CLOSING";
+			appendStatusLog(msg + "WS CLOSING");
+		}
+		else if(state == 3)
+		{
+			$scope.websocketState = "CLOSED";
+			appendStatusLog(msg + "WS CLOSED");
+		}
+
+	}
+
+
+	var WebsocketConnect = function(){
+	// Websocket connection
+	conn = new WebSocket($scope.webSocketAddr);
+
+  // called when the server closes the connection
+  conn.onclose = function(e) {
+    $scope.$apply(function(){
+      appendStatusLog("DISCONNECTED");
+			setWebsocketStatus("onclose:");
+    });
+  };
+  // called when the connection to the server is made
+  conn.onopen = function(e) {
+    $scope.$apply(function(){
+      appendStatusLog("CONNECTED");
+			setWebsocketStatus("onopen:");
+    })
+  };
+  // called when a message is received from the server
+  conn.onmessage = function(e){
+    $scope.$apply(function(){
+      //$scope.messages.push(e.data);
+      appendLog(e.data);
+			setWebsocketStatus("onmessage:");
+
+      // Process message
+      processMessage(e.data);
+    });
+  };
+	// called when a message is received from the server
+	conn.onerror = function(e){
+		$scope.$apply(function(){
+			//$scope.messages.push(e.data);
+			appendLog(e.data);
+			setWebsocketStatus("onerror:");
+		});
+	};
+};
+// Set Initial Websocket connection
+WebsocketConnect();
+
+  $scope.send = function() {
+    conn.send($scope.msg);
+    $scope.msg = "";
+		setWebsocketStatus("send:");
+  }
+  $scope.break = function() {
+		if($scope.ConnectedPort != null )
+		{
+			var cmd = "SEND " + $scope.ConnectedPort.Name + " BREAK\r\n";
+			conn.send(cmd);
+		}
+    $scope.msg = "";
+  }
+  $scope.stop = function() {
+		if($scope.ConnectedPort != null )
+		{
+			var cmd = "SEND " + $scope.ConnectedPort.Name + " BREAK\r\n";
+			conn.send(cmd);
+
+			// Wait a period of time to send the next command
+			setTimeout(function() { conn.send(cmd); }, 500);
+
+			cmd = "SEND " + $scope.ConnectedPort.Name + " STOP\r\n";
+		}
+    $scope.msg = "";
+  }
+  $scope.start = function() {
+		if($scope.ConnectedPort != null )
+		{
+			var cmd = "SEND " + $scope.ConnectedPort.Name + " START\r\n";
+			conn.send(cmd);
+		}
+
+    $scope.msg = "";
+  }
+	$scope.clear = function() {
+		$scope.messageStr = "";
+		$scope.jsonData = "";
+	}
+	$scope.list = function() {
+		// Update the port list
+		isUpdatePortList = true;
+		$scope.portList = "";
+
+		// Send command to get the port list
+		conn.send("list");
+		setWebsocketStatus("list:");
+	}
+	// Connect to the serial port selected
+	$scope.connect = function(port) {
+		$scope.ConnectedPort = port;
+
+		if(port.IsOpen == false)
+		{
+			var cmd = "OPEN " + $scope.ConnectedPort.Name + " " + port.Baud + "\r\n";
+			conn.send(cmd);
+		}
+	}
+	// Connect to the serial port selected
+	$scope.disconnect = function(port) {
+		// Send the command
+		var cmd = "CLOSE " + port.Name + "\r\n";
+		conn.send(cmd);
+
+		// Clear the connected port
+		$scope.ConnectedPort = null;
+	}
+	// Connect to the server
+	$scope.reconnectWebsocket = function() {
+		// Set address
+		$scope.webSocketAddr  = "ws://" + $scope.serverAddr;
+		// Close the connection
+		conn.close();
+		// Reset messages
+		appendStatusLog("RECONNECT");
+		setWebsocketStatus("reconnectWebsocket:");
+		// Reset the websocket connection
+		WebsocketConnect();
+	}
+	$scope.recordStart = function(port) {
+		var cmd = "RECORD " + port.Name + " START\r\n";
+		$scope.cmd = cmd;
+		conn.send(cmd);
+	}
+	$scope.recordStop = function(port) {
+		var cmd = "RECORD " + port.Name + " STOP\r\n";
+		$scope.cmd = cmd;
+		conn.send(cmd);
+	}
+	$scope.sendPortMsg = function(port, portMsg) {
+		var cmd = "SEND " + port.Name + " " + portMsg +  "\r\n";
+		$scope.cmd = cmd;
+		conn.send(cmd);
+		port.PortMsg = "";
+	}
+	$scope.sendPortStart = function(port) {
+		var cmd = "SEND " + port.Name + " START\r\n";
+		$scope.cmd = cmd;
+		conn.send(cmd);
+	}
+	$scope.sendPortStop = function(port) {
+		var cmd = "SEND " + port.Name + " BREAK\r\n";
+		conn.send(cmd);
+
+		// Wait a period of time to send the next command
+		cmd = "SEND " + port.Name + " STOP\r\n";
+		setTimeout(function() { conn.send(cmd); }, 500);
+	}
+	$scope.sendPortBreak = function(port) {
+		var cmd = "SEND " + port.Name + " BREAK\r\n";
+		$scope.cmd = cmd;
+		conn.send(cmd);
+	}
+
+  // processMessage will process incoming messages.
+  // It will decoded what type of JSON message is received,
+  // then display the data.
+  function processMessage(msg) {
+    // Convert the data to JSON
+    var jsonData = JSON.parse(msg);
+
+    // Get the Adcp List
+		if( jsonData.hasOwnProperty('ID'))
+		{
+      //console.log(jsonData.ID);
+
+      // Got ADCP list
+      if(jsonData.ID == 'AdcpList') {
+        //console.log(jsonData.)
+        $scope.adcpList = jsonData.SerialNumList;
+      }
+
+      // Got raw ensemble
+      if(jsonData.ID == 'Ensemble') {
+        // Set Heading, Pitch, Roll
+        setHPR(jsonData.Ens);
+      }
+
+      // Profile Amplitude Data
+      if(jsonData.ID == 'ProfileAmpData') {
+        setProfileAmpData(jsonData)
+      }
+
+      // Profile Correlation Data
+      if(jsonData.ID == 'ProfileCorrData') {
+        setProfileCorrData(jsonData)
+      }
+
+      // Profile Data
+      if(jsonData.ID == 'ProfileData') {
+        setProfileData(jsonData)
+      }
+
+			// HPR Data
+			if(jsonData.ID == 'HprData') {
+				setHprData(jsonData)
+							//loadGraph();
+			}
+
+			// Profile Rickshaw Data
+			if(jsonData.ID == 'ProfileRickshawData') {
+				setProfileRickshawData(jsonData)
+			}
+
+			// Profile Rickshaw Data
+			if(jsonData.ID == 'ProfileC3Data') {
+				setProfileC3Data(jsonData)
+			}
+
+		}
+  }
+
+  // Update the Heading, Pitch and Roll.
+  function setHPR(ens) {
+    var ensNum = ens.EnsembleData.EnsembleNumber;
+    $scope.hdgLabels.push(ensNum);
+
+    var hdg = ens.AncillaryData.Heading;
+    var pitch = ens.AncillaryData.Pitch;
+    var roll = ens.AncillaryData.Roll;
+    $scope.hdgData[0].push(hdg);
+    $scope.hdgData[1].push(pitch);
+    $scope.hdgData[2].push(roll);
+
+    // Keep the size small
+    if($scope.hdgLabels.length > 40) {
+      $scope.hdgLabels.splice(0, 1);
+      $scope.hdgData[0].splice(0, 1);
+      $scope.hdgData[1].splice(0, 1);
+      $scope.hdgData[2].splice(0, 1);
+    }
+  }
+
+  function setProfileAmpData(json) {
+    $scope.ampPlotData = JSON.parse(json.Data);
+  }
+
+  function setProfileCorrData(json) {
+    $scope.corrPlotData = JSON.parse(json.Data);
+  }
+
+  function setProfileData(json) {
+    $scope.ampData = json.AmpData;
+		$scope.corrData = json.CorrData;
+
+		//seriesData = json.AmpData;
+		//graph.update();
+		//console.log(json.AmpData);
+  }
+
+	function setHprData(json) {
+		$scope.hprData = json.HprData;
+		//console.log($scope.hprData);
+		//console.log("hello");
+	}
+
+	function setProfileRickshawData(json) {
+		//seriesData[0] = json.AmpB0Data;
+		//seriesData[1] = json.AmpB1Data;
+		//seriesData[2] = json.AmpB2Data;
+		//seriesData[3] = json.AmpB3Data;
+		//graph.series[0].data = json.AmpB0Data;
+		//graph.update();
+		//console.log(json.AmpB0Data);
+		// graph.series[0] = json.AmpB0Data;
+		// graph.series[1] = json.AmpB1Data;
+		// graph.series[2] = json.AmpB2Data;
+		// graph.series[3] = json.AmpB3Data;
+		// graph.update();
+
+
+	}
+
+	function setProfileC3Data(json) {
+		setProfileC3AmpPlot(json)
+		setProfileC3CorrPlot(json)
+	}
+
+	function setProfileC3AmpPlot(json) {
+
+		var data = new Array();
+
+		var ampX = json.AmpXAxis;
+		if(ampX != null) {
+			ampX.unshift('x');
+			data.push(ampX);
+		}
+
+		var ampB0 = json.AmpB0Data;
+		if(ampB0 != null) {
+			ampB0.unshift('B0');
+			data.push(ampB0);
+		}
+
+		var ampB1 = json.AmpB1Data;
+		if(ampB1 != null) {
+			ampB1.unshift('B1');
+			data.push(ampB1);
+		}
+
+		var ampB2 = json.AmpB2Data;
+		if(ampB2 != null) {
+			ampB2.unshift('B2');
+			data.push(ampB2);
+		}
+
+		var ampB3 = json.AmpB3Data;
+		if(ampB3 != null) {
+			ampB3.unshift('B3');
+			data.push(ampB3);
+		}
+
+		// If the chart has not been created
+		// created it now.
+		if(ampChart == null) {
+			ampChart = c3.generate({
+					size: {
+						width: 640,
+						height: 480
+					},
+					padding: {
+			      top: 40,
+			      right: 100,
+			      bottom: 40,
+			      left: 200,
+			    },
+					data: {
+							x: 'x',
+							columns: data
+					},
+					axis: {
+							rotated: true,
+							y: {
+								min: 0,
+								max: 120,
+								label: {
+									text: "dB",
+									position: "outer-right"
+								}
+							},
+							x: {
+								label: {
+									text: "Bin",
+									position: "outer-top"
+								}
+							}
+					},
+					bindto: '#ampChart'
+			});
+		} else {
+			ampChart.load( {
+				columns: data
+			});
+		}
+	}
+
+	function setProfileC3CorrPlot(json) {
+		var data = new Array();
+
+		var corrX = json.CorrXAxis;
+		if(corrX != null) {
+			corrX.unshift('x');
+			data.push(corrX);
+		}
+
+		var corrB0 = json.CorrB0Data;
+		if(corrB0 != null) {
+			corrB0.unshift('B0');
+			data.push(corrB0);
+		}
+
+		var corrB1 = json.CorrB1Data;
+		if(corrB1 != null) {
+			corrB1.unshift('B1');
+			data.push(corrB1);
+		}
+
+		var corrB2 = json.CorrB2Data;
+		if(corrB2 != null) {
+			corrB2.unshift('B2');
+			data.push(corrB2);
+		}
+
+		var corrB3 = json.CorrB3Data;
+		if(corrB3 != null) {
+			corrB3.unshift('B3');
+			data.push(corrB3);
+		}
+
+		// If the chart has not been created
+		// created it now.
+		if(corrChart == null) {
+			corrChart = c3.generate({
+					size: {
+						width: 640,
+						height: 480
+					},
+					padding: {
+			      top: 40,
+			      right: 100,
+			      bottom: 40,
+			      left: 200,
+			    },
+					data: {
+							x: 'x',
+							columns: data
+					},
+					axis: {
+							rotated: true,
+							y: {
+								min: 0,
+								max: 1,
+								label: {
+									text: "%",
+									position: "outer-right"
+								}
+							},
+							x: {
+								label: {
+									text: "Meter",
+									position: "outer-top"
+								}
+							}
+					},
+					bindto: '#corrChart'
+			});
+		} else {
+			corrChart.load( {
+				columns: data
+			});
+		}
+	}
+
+
+});
+</script>
+
+</body>
+</html>

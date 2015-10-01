@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script-->
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js"></script-->
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.8.4/angular-chart.min.js"></script-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/0.8.4/angular-chart.min.css">
+
+<!--script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script-->
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.js"></script>
+
+<script src="//cdn.rawgit.com/n3-charts/line-chart/1.1.11/build/line-chart.min.js"></script>
+
+<!--script src="https://rawgit.com/mbostock/d3/master/d3.min.js"></script-->
+<!--script src="https://rawgit.com/novus/nvd3/v1.1.15-beta/nv.d3.min.js"></script-->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.js"></script>
+<!--script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.js"></script-->
+<script src="https://rawgit.com/krispo/angular-nvd3/master/dist/angular-nvd3.js"></script>
+
+<!--script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-nvd3-directives/0.0.7/angularjs-nvd3-directives-min.js"></script-->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angularjs-nvd3-directives/0.0.7/angularjs-nvd3-directives.js"></script>
+
+<link rel="stylesheet" href="https://rawgit.com/novus/nvd3/v1.1.15-beta/nv.d3.min.css"/>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/rickshaw/1.5.1/rickshaw.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+	<script>
+		jQuery.noConflict();
+	</script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
+
+<head>
+	<meta charset="utf-8">
+	<style>
+	ul
+	{
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	}
+
+	.rickshaw_legend {
+		font-family: Arial;
+		font-size: 12px;
+		color: white;
+		background: #404040;
+		display: inline-block;
+		padding: 12px 5px;
+		border-radius: 2px;
+		position: relative;
+	}
+	.rickshaw_legend:hover {
+		z-index: 10;
+	}
+	.rickshaw_legend .swatch {
+		width: 10px;
+		height: 10px;
+		border: 1px solid rgba(0, 0, 0, 0.2);
+	}
+	.rickshaw_legend .line {
+		clear: both;
+		line-height: 140%;
+		padding-right: 15px;
+	}
+	.rickshaw_legend .line .swatch {
+		display: inline-block;
+		margin-right: 3px;
+		border-radius: 2px;
+	}
+	.rickshaw_legend .label {
+		margin: 0;
+		white-space: nowrap;
+		display: inline;
+		font-size: inherit;
+		background-color: transparent;
+		color: inherit;
+		font-weight: normal;
+		line-height: normal;
+		padding: 0px;
+		text-shadow: none;
+	}
+	.rickshaw_legend .action:hover {
+		opacity: 0.6;
+	}
+	.rickshaw_legend .action {
+		margin-right: 0.2em;
+		font-size: 10px;
+		opacity: 0.2;
+		cursor: pointer;
+		font-size: 14px;
+	}
+	.rickshaw_legend .line.disabled {
+		opacity: 0.4;
+	}
+	.rickshaw_legend ul {
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
+		margin: 2px;
+		cursor: pointer;
+	}
+	.rickshaw_legend li {
+		padding: 0 0 0 2px;
+		min-width: 80px;
+		white-space: nowrap;
+	}
+	.rickshaw_legend li:hover {
+		background: rgba(255, 255, 255, 0.08);
+		border-radius: 3px;
+	}
+	.rickshaw_legend li:active {
+		background: rgba(255, 255, 255, 0.2);
+		border-radius: 3px;
+	}
+
+	/* graph */
+
+.rickshaw_graph {
+	position: relative;
+}
+.rickshaw_graph svg {
+	display: block;
+	overflow: hidden;
+}
+
+/* ticks */
+
+.rickshaw_graph .x_tick {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 0px;
+	border-left: 1px dotted rgba(0, 0, 0, 0.2);
+	pointer-events: none;
+}
+.rickshaw_graph .x_tick .title {
+	position: absolute;
+	font-size: 12px;
+	font-family: Arial, sans-serif;
+	opacity: 0.5;
+	white-space: nowrap;
+	margin-left: 3px;
+	bottom: 1px;
+}
+
+/* annotations */
+
+.rickshaw_annotation_timeline {
+	height: 1px;
+	border-top: 1px solid #e0e0e0;
+	margin-top: 10px;
+	position: relative;
+}
+.rickshaw_annotation_timeline .annotation {
+	position: absolute;
+	height: 6px;
+	width: 6px;
+	margin-left: -2px;
+	top: -3px;
+	border-radius: 5px;
+	background-color: rgba(0, 0, 0, 0.25);
+}
+.rickshaw_graph .annotation_line {
+	position: absolute;
+	top: 0;
+	bottom: -6px;
+	width: 0px;
+	border-left: 2px solid rgba(0, 0, 0, 0.3);
+	display: none;
+}
+.rickshaw_graph .annotation_line.active {
+	display: block;
+}
+
+.rickshaw_graph .annotation_range {
+        background: rgba(0, 0, 0, 0.1);
+        display: none;
+        position: absolute;
+        top: 0;
+        bottom: -6px;
+}
+.rickshaw_graph .annotation_range.active {
+        display: block;
+}
+.rickshaw_graph .annotation_range.active.offscreen {
+        display: none;
+}
+
+.rickshaw_annotation_timeline .annotation .content {
+	background: white;
+	color: black;
+	opacity: 0.9;
+	padding: 5px 5px;
+	box-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+	border-radius: 3px;
+	position: relative;
+	z-index: 20;
+	font-size: 12px;
+	padding: 6px 8px 8px;
+	top: 18px;
+	left: -11px;
+	width: 160px;
+	display: none;
+	cursor: pointer;
+}
+.rickshaw_annotation_timeline .annotation .content:before {
+	content: "\25b2";
+	position: absolute;
+	top: -11px;
+	color: white;
+	text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.8);
+}
+.rickshaw_annotation_timeline .annotation.active,
+.rickshaw_annotation_timeline .annotation:hover {
+	background-color: rgba(0, 0, 0, 0.8);
+	cursor: none;
+}
+.rickshaw_annotation_timeline .annotation .content:hover {
+	z-index: 50;
+}
+.rickshaw_annotation_timeline .annotation.active .content {
+	display: block;
+}
+.rickshaw_annotation_timeline .annotation:hover .content {
+	display: block;
+	z-index: 50;
+}
+.rickshaw_graph .y_axis,
+.rickshaw_graph  .x_axis_d3 {
+	fill: none;
+}
+.rickshaw_graph .y_ticks .tick line,
+.rickshaw_graph .x_ticks_d3 .tick {
+	stroke: rgba(0, 0, 0, 0.16);
+	stroke-width: 2px;
+	shape-rendering: crisp-edges;
+	pointer-events: none;
+}
+.rickshaw_graph .y_grid .tick,
+.rickshaw_graph .x_grid_d3 .tick {
+	z-index: -1;
+	stroke: rgba(0, 0, 0, 0.20);
+	stroke-width: 1px;
+	stroke-dasharray: 1 1;
+}
+.rickshaw_graph .y_grid .tick[data-y-value="0"] {
+	stroke-dasharray: 1 0;
+}
+.rickshaw_graph .y_grid path,
+.rickshaw_graph .x_grid_d3 path  {
+	fill: none;
+	stroke: none;
+}
+.rickshaw_graph .y_ticks path,
+.rickshaw_graph .x_ticks_d3 path {
+	fill: none;
+	stroke: #808080;
+}
+.rickshaw_graph .y_ticks text,
+.rickshaw_graph .x_ticks_d3 text {
+	opacity: 0.5;
+	font-size: 12px;
+	pointer-events: none;
+}
+.rickshaw_graph .x_tick.glow .title,
+.rickshaw_graph .y_ticks.glow text {
+	fill: black;
+	color: black;
+	text-shadow:
+		-1px 1px 0 rgba(255, 255, 255, 0.1),
+		1px -1px 0 rgba(255, 255, 255, 0.1),
+		1px 1px 0 rgba(255, 255, 255, 0.1),
+		0px 1px 0 rgba(255, 255, 255, 0.1),
+		0px -1px 0 rgba(255, 255, 255, 0.1),
+		1px 0px 0 rgba(255, 255, 255, 0.1),
+		-1px 0px 0 rgba(255, 255, 255, 0.1),
+		-1px -1px 0 rgba(255, 255, 255, 0.1);
+}
+.rickshaw_graph .x_tick.inverse .title,
+.rickshaw_graph .y_ticks.inverse text {
+	fill: white;
+	color: white;
+	text-shadow:
+		-1px 1px 0 rgba(0, 0, 0, 0.8),
+		1px -1px 0 rgba(0, 0, 0, 0.8),
+		1px 1px 0 rgba(0, 0, 0, 0.8),
+		0px 1px 0 rgba(0, 0, 0, 0.8),
+		0px -1px 0 rgba(0, 0, 0, 0.8),
+		1px 0px 0 rgba(0, 0, 0, 0.8),
+		-1px 0px 0 rgba(0, 0, 0, 0.8),
+		-1px -1px 0 rgba(0, 0, 0, 0.8);
+}
+
+.rickshaw_graph .detail {
+	pointer-events: none;
+	position: absolute;
+	top: 0;
+	z-index: 2;
+	background: rgba(0, 0, 0, 0.1);
+	bottom: 0;
+	width: 1px;
+	transition: opacity 0.25s linear;
+	-moz-transition: opacity 0.25s linear;
+	-o-transition: opacity 0.25s linear;
+	-webkit-transition: opacity 0.25s linear;
+}
+.rickshaw_graph .detail.inactive {
+	opacity: 0;
+}
+.rickshaw_graph .detail .item.active {
+	opacity: 1;
+}
+.rickshaw_graph .detail .x_label {
+	font-family: Arial, sans-serif;
+	border-radius: 3px;
+	padding: 6px;
+	opacity: 0.5;
+	border: 1px solid #e0e0e0;
+	font-size: 12px;
+	position: absolute;
+	background: white;
+	white-space: nowrap;
+}
+.rickshaw_graph .detail .x_label.left {
+	left: 0;
+}
+.rickshaw_graph .detail .x_label.right {
+	right: 0;
+}
+.rickshaw_graph .detail .item {
+	position: absolute;
+	z-index: 2;
+	border-radius: 3px;
+	padding: 0.25em;
+	font-size: 12px;
+	font-family: Arial, sans-serif;
+	opacity: 0;
+	background: rgba(0, 0, 0, 0.4);
+	color: white;
+	border: 1px solid rgba(0, 0, 0, 0.4);
+	margin-left: 1em;
+	margin-right: 1em;
+	margin-top: -1em;
+	white-space: nowrap;
+}
+.rickshaw_graph .detail .item.left {
+	left: 0;
+}
+.rickshaw_graph .detail .item.right {
+	right: 0;
+}
+.rickshaw_graph .detail .item.active {
+	opacity: 1;
+	background: rgba(0, 0, 0, 0.8);
+}
+.rickshaw_graph .detail .item:after {
+	position: absolute;
+	display: block;
+	width: 0;
+	height: 0;
+
+	content: "";
+
+	border: 5px solid transparent;
+}
+.rickshaw_graph .detail .item.left:after {
+	top: 1em;
+	left: -5px;
+	margin-top: -5px;
+	border-right-color: rgba(0, 0, 0, 0.8);
+	border-left-width: 0;
+}
+.rickshaw_graph .detail .item.right:after {
+	top: 1em;
+	right: -5px;
+	margin-top: -5px;
+	border-left-color: rgba(0, 0, 0, 0.8);
+	border-right-width: 0;
+}
+.rickshaw_graph .detail .dot {
+	width: 4px;
+	height: 4px;
+	margin-left: -3px;
+	margin-top: -3.5px;
+	border-radius: 5px;
+	position: absolute;
+	box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+	box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	background: white;
+	border-width: 2px;
+	border-style: solid;
+	display: none;
+	background-clip: padding-box;
+}
+.rickshaw_graph .detail .dot.active {
+	display: block;
+}
+
+	</style>
+</head>
+
+<body>
+
+<div ng-app="echo" ng-controller="AdcpCtrl">
+
+<div class="row" style="margin: 10px">
+  <div class="col-sm-8">
+	   <div class="panel panel-default">
+		    <div class="panel-heading">ADCP
+			    <div class="btn-group pull-right" style="margin-right:6px;">
+					  <button class="btn btn-xs btn-default spconsole-clear" align="right" ng-click="clear()">CLEAR</button>
+					  <button type="button" class="btn btn-xs btn-default spconsole-pause "><span class="glyphicon glyphicon-ban-circle"></span></button>
+          </div>
+		    </div>
+
+			<div class="row">
+				<div class="col-sm-10">
+					<textarea data-ng-bind="messageStr" readonly rows="35" cols="100" id="serialPort_txtArea" ></textarea>
+				</div>
+			</div>
+
+			</div>
+		</div>
+
+		<div class="col-sm-4">
+
+			<div class="panel panel-default">
+				<div class="panel-heading">Ports and Settings</div>
+
+				<!--Tab Panel-->
+				<ul class="nav nav-tabs">
+					<li class="active">
+						<a href="#ports" data-toggle="tab">ADCPs
+							<button type="button" class="btn btn-xs btn-default spconsole-pause " ng-click="list()">
+								<span class="glyphicon glyphicon-refresh"></span>
+							</button>
+						</a>
+					</li>
+					<li class="">
+						<a href="#status" data-toggle="tab">Status</a>
+					</li>
+				</ul>
+				<!--Tab Content-->
+				<div class="tab-content">
+
+					<div id="ports" class="tab-pane fade in active">
+						<div class="row">
+							<div class="col-sm-10">
+								<ul ng-repeat="adcp in adcpList">
+									<li>
+										<div class="panel panel-default">
+                      <div class="panel-heading"><span data-ng-bind="adcp"></span></div>
+											<!--div class="panel-heading"><span data-ng-bind="port.Friendly"></div>
+											Baud: <select name="singleSelect" ng-model="port.Baud" ng-init="port.Baud" ng-options="baud for baud in [921600, 460800, 230400, 115200, 38400, 19200, 9600, 4800, 2400, 0]"></select><br>
+											Is Open: <span data-ng-bind="port.IsOpen"></span><br>
+											<button class="btn btn-xs btn-default" ng-click="connect(port)">Connect</button>
+											<button class="btn btn-xs btn-default" ng-click="disconnect(port)">Disconnect</button><br>
+											<button class="btn btn-xs btn-default" ng-click="recordStart(port)">Record</button>
+											<button class="btn btn-xs btn-default" ng-click="recordStop(port)">STOP</button>
+											<span data-ng-bind="port.fileSize"></span><br>
+											<input type="text" cols="75" placeholder="type here" ng-model="port.PortMsg" ng-enter="sendPortMsg()">
+											<button class="btn" ng-click="sendPortMsg(port, port.PortMsg)">Send</button>
+											<button class="btn" ng-click="sendPortStart(port)">START</button>
+											<button class="btn" ng-click="sendPortStop(port)">STOP</button>
+											<button class="btn" ng-click="sendPortBreak(port)">BREAK</button-->
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					<div id="status" class="tab-pane fade">
+						<div class="row">
+							<div class="col-sm-10">
+								<ul ng-repeat="m in statusMsgs track by $index">
+											<li><span data-ng-bind="m"></span></li>
+								</ul>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-sm-5">
+								<strong>Server:</strong>
+							</div>
+							<div class="col-md-10">
+								<input type="text" ng-model="serverAddr" placeholder="ADDRESS">
+								<button class="btn btn-default" ng-click="reconnectWebsocket()">Connect</button>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-sm-5">
+								<strong>Websocket Server:</strong>
+							</div>
+							<div class="col-sm-10">
+								<span data-ng-bind="webSocketAddr"></span>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-sm-5">
+								<strong>Websocket Status:</strong>
+							</div>
+							<div class="col-sm-10">
+								<span data-ng-bind="websocketState"></span>
+							</div>
+						</div>
+
+					</div><!--Status-->
+
+			</div>
+
+		</div>
+	</div>
+
+	</div>
+	<div class="row">
+		<div class="col-lg-5">
+
+			<div id="chart_container">
+				<div id="chart"></div>
+				<div id="legend_container">
+					<div id="smoother" title="Smoothing"></div>
+					<div id="legend"></div>
+				</div>
+				<div id="slider"></div>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<script>
+
+var app = angular.module('echo', []);
+app.controller('AdcpCtrl', function($scope) {
+
+	// Flag used to find the Serial Port list
+	var isUpdatePortList = false;
+
+  $scope.statusMsgs = [];
+  $scope.messageStr = "";
+	$scope.portList = "";
+	$scope.serverAddr = "192.168.0.152:8080/wsAdcp";
+	$scope.webSocketAddr = "ws://192.168.0.152:8080/wsAdcp";
+	$scope.websocketState = "";
+	$scope.singleSelect = null;
+
+	$scope.ConnectedPort = null;
+
+	// Websocket connection
+	$scope.conn = null;
+
+/////////////////////////////////////////////////
+
+// set up our data series with 50 random data points
+
+var seriesData = [ [], [], [] ];
+var random = new Rickshaw.Fixtures.RandomData(150);
+
+console.log(seriesData[0])
+
+for (var i = 0; i < 150; i++) {
+	random.addData(seriesData);
+}
+
+// instantiate our graph!
+
+var graph = new Rickshaw.Graph( {
+	element: document.getElementById("chart"),
+	width: 960,
+	height: 500,
+	renderer: 'line',
+	series: [
+		{
+			color: "#c05020",
+			data: seriesData[0],
+			name: 'New York'
+		}, {
+			color: "#30c020",
+			data: seriesData[1],
+			name: 'London'
+		}, {
+			color: "#6060c0",
+			data: seriesData[2],
+			name: 'Tokyo'
+		}
+	]
+} );
+
+graph.render();
+
+var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+	graph: graph
+} );
+
+var legend = new Rickshaw.Graph.Legend( {
+	graph: graph,
+	element: document.getElementById('legend')
+
+} );
+
+var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
+	graph: graph,
+	legend: legend
+} );
+
+var axes = new Rickshaw.Graph.Axis.Time( {
+	graph: graph
+} );
+axes.render();
+
+/////////////////////////////////////////////////
+
+  $scope.hdgLabels = [];
+  $scope.hdgSeries = ['Heading', 'Pitch', 'Roll'];
+  $scope.hdgData = [[], [], []];
+  //Chart.defaults.global.responsive = true;
+  //Chart.defaults.global.animation = false;
+
+  $scope.onClick = function (points, evt) {
+    console.log(points, evt);
+  };
+  $scope.randomize = function () {
+      $scope.data = $scope.data.map(function (data) {
+        return data.map(function (y) {
+          y = y + Math.random() * 10 - 5;
+          return parseInt(y < 0 ? 0 : y > 100 ? 100 : y);
+        });
+      });
+    };
+
+	// Append the data so it will not be a large buffer
+  function appendLog(msg) {
+
+		// Convert the data to JSON
+		var jsonData = JSON.parse(msg);
+
+    // Display the JSON data
+		$scope.messageStr = msg;
+
+		// Always scroll to the bottom
+		var txtArea = document.getElementById('serialPort_txtArea');
+		txtArea.scrollTop = txtArea.scrollHeight;
+  }
+
+	// Append Status log.
+	function appendStatusLog(msg) {
+		var max = 10;
+		// Add element to front
+		$scope.statusMsgs.unshift(msg);
+
+		// If the array is to big, remove last element
+		if($scope.statusMsgs.length > max)
+		{
+			$scope.statusMsgs.splice($scope.statusMsgs.length-1, 1);
+		}
+	}
+
+	///
+	/// Update the port list
+	///
+	function updatePortsList(msg) {
+		$scope.portList += msg;
+
+		// Wait until the entire JSON message is received
+		// If greater than -1, then the end of the JSON string was found
+		if(msg.indexOf("]") > -1)
+		{
+			// Turn off looking for the list
+			isUpdatePortList = false;
+
+			// Remove the "list" command from the string result
+			$scope.portList = $scope.portList.replace("list", "");
+
+			// Convert to a JSON object
+			$scope.portList = JSON.parse($scope.portList);
+		}
+	}
+
+	function humanFileSize(bytes, si) {
+    var thresh = si ? 1000 : 1024;
+    if(Math.abs(bytes) < thresh) {
+        return bytes + ' B';
+    }
+    var units = si
+        ? ['kB','MB','GB','TB','PB','EB','ZB','YB']
+        : ['KiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB'];
+    var u = -1;
+    do {
+        bytes /= thresh;
+        ++u;
+    } while(Math.abs(bytes) >= thresh && u < units.length - 1);
+    return bytes.toFixed(1)+' '+units[u];
+}
+
+	///
+	/// Set the Websocket status
+	///
+	function setWebsocketStatus(msg) {
+		var state = conn.readyState;
+		if(state == 0)
+		{
+			$scope.websocketState = "CONNECTING";
+			appendStatusLog(msg + "WS CONNECTING");
+		}
+		else if(state == 1)
+		{
+			$scope.websocketState = "OPEN";
+			appendStatusLog(msg + "WS OPEN");
+		}
+		else if(state == 2)
+		{
+			$scope.websocketState = "CLOSING";
+			appendStatusLog(msg + "WS CLOSING");
+		}
+		else if(state == 3)
+		{
+			$scope.websocketState = "CLOSED";
+			appendStatusLog(msg + "WS CLOSED");
+		}
+
+	}
+
+
+	var WebsocketConnect = function(){
+	// Websocket connection
+	conn = new WebSocket($scope.webSocketAddr);
+
+  // called when the server closes the connection
+  conn.onclose = function(e) {
+    $scope.$apply(function(){
+      appendStatusLog("DISCONNECTED");
+			setWebsocketStatus("onclose:");
+    });
+  };
+  // called when the connection to the server is made
+  conn.onopen = function(e) {
+    $scope.$apply(function(){
+      appendStatusLog("CONNECTED");
+			setWebsocketStatus("onopen:");
+    })
+  };
+  // called when a message is received from the server
+  conn.onmessage = function(e){
+    $scope.$apply(function(){
+      //$scope.messages.push(e.data);
+      appendLog(e.data);
+			setWebsocketStatus("onmessage:");
+
+      // Process message
+      processMessage(e.data);
+    });
+  };
+	// called when a message is received from the server
+	conn.onerror = function(e){
+		$scope.$apply(function(){
+			//$scope.messages.push(e.data);
+			appendLog(e.data);
+			setWebsocketStatus("onerror:");
+		});
+	};
+};
+// Set Initial Websocket connection
+WebsocketConnect();
+
+  $scope.send = function() {
+    conn.send($scope.msg);
+    $scope.msg = "";
+		setWebsocketStatus("send:");
+  }
+  $scope.break = function() {
+		if($scope.ConnectedPort != null )
+		{
+			var cmd = "SEND " + $scope.ConnectedPort.Name + " BREAK\r\n";
+			conn.send(cmd);
+		}
+    $scope.msg = "";
+  }
+  $scope.stop = function() {
+		if($scope.ConnectedPort != null )
+		{
+			var cmd = "SEND " + $scope.ConnectedPort.Name + " BREAK\r\n";
+			conn.send(cmd);
+
+			// Wait a period of time to send the next command
+			setTimeout(function() { conn.send(cmd); }, 500);
+
+			cmd = "SEND " + $scope.ConnectedPort.Name + " STOP\r\n";
+		}
+    $scope.msg = "";
+  }
+  $scope.start = function() {
+		if($scope.ConnectedPort != null )
+		{
+			var cmd = "SEND " + $scope.ConnectedPort.Name + " START\r\n";
+			conn.send(cmd);
+		}
+
+    $scope.msg = "";
+  }
+	$scope.clear = function() {
+		$scope.messageStr = "";
+		$scope.jsonData = "";
+	}
+	$scope.list = function() {
+		// Update the port list
+		isUpdatePortList = true;
+		$scope.portList = "";
+
+		// Send command to get the port list
+		conn.send("list");
+		setWebsocketStatus("list:");
+	}
+	// Connect to the serial port selected
+	$scope.connect = function(port) {
+		$scope.ConnectedPort = port;
+
+		if(port.IsOpen == false)
+		{
+			var cmd = "OPEN " + $scope.ConnectedPort.Name + " " + port.Baud + "\r\n";
+			conn.send(cmd);
+		}
+	}
+	// Connect to the serial port selected
+	$scope.disconnect = function(port) {
+		// Send the command
+		var cmd = "CLOSE " + port.Name + "\r\n";
+		conn.send(cmd);
+
+		// Clear the connected port
+		$scope.ConnectedPort = null;
+	}
+	// Connect to the server
+	$scope.reconnectWebsocket = function() {
+		// Set address
+		$scope.webSocketAddr  = "ws://" + $scope.serverAddr;
+		// Close the connection
+		conn.close();
+		// Reset messages
+		appendStatusLog("RECONNECT");
+		setWebsocketStatus("reconnectWebsocket:");
+		// Reset the websocket connection
+		WebsocketConnect();
+	}
+	$scope.recordStart = function(port) {
+		var cmd = "RECORD " + port.Name + " START\r\n";
+		$scope.cmd = cmd;
+		conn.send(cmd);
+	}
+	$scope.recordStop = function(port) {
+		var cmd = "RECORD " + port.Name + " STOP\r\n";
+		$scope.cmd = cmd;
+		conn.send(cmd);
+	}
+	$scope.sendPortMsg = function(port, portMsg) {
+		var cmd = "SEND " + port.Name + " " + portMsg +  "\r\n";
+		$scope.cmd = cmd;
+		conn.send(cmd);
+		port.PortMsg = "";
+	}
+	$scope.sendPortStart = function(port) {
+		var cmd = "SEND " + port.Name + " START\r\n";
+		$scope.cmd = cmd;
+		conn.send(cmd);
+	}
+	$scope.sendPortStop = function(port) {
+		var cmd = "SEND " + port.Name + " BREAK\r\n";
+		conn.send(cmd);
+
+		// Wait a period of time to send the next command
+		cmd = "SEND " + port.Name + " STOP\r\n";
+		setTimeout(function() { conn.send(cmd); }, 500);
+	}
+	$scope.sendPortBreak = function(port) {
+		var cmd = "SEND " + port.Name + " BREAK\r\n";
+		$scope.cmd = cmd;
+		conn.send(cmd);
+	}
+
+  // processMessage will process incoming messages.
+  // It will decoded what type of JSON message is received,
+  // then display the data.
+  function processMessage(msg) {
+    // Convert the data to JSON
+    var jsonData = JSON.parse(msg);
+
+    // Get the Adcp List
+		if( jsonData.hasOwnProperty('ID'))
+		{
+      //console.log(jsonData.ID);
+
+      // Got ADCP list
+      if(jsonData.ID == 'AdcpList') {
+        //console.log(jsonData.)
+        $scope.adcpList = jsonData.SerialNumList;
+      }
+
+      // Got raw ensemble
+      if(jsonData.ID == 'Ensemble') {
+        // Set Heading, Pitch, Roll
+        setHPR(jsonData.Ens);
+      }
+
+      // Profile Amplitude Data
+      if(jsonData.ID == 'ProfileAmpData') {
+        setProfileAmpData(jsonData)
+      }
+
+      // Profile Correlation Data
+      if(jsonData.ID == 'ProfileCorrData') {
+        setProfileCorrData(jsonData)
+      }
+
+      // Profile Data
+      if(jsonData.ID == 'ProfileData') {
+        setProfileData(jsonData)
+      }
+
+			// HPR Data
+			if(jsonData.ID == 'HprData') {
+				setHprData(jsonData)
+							loadGraph();
+			}
+
+		}
+  }
+
+  // Update the Heading, Pitch and Roll.
+  function setHPR(ens) {
+    var ensNum = ens.EnsembleData.EnsembleNumber;
+    $scope.hdgLabels.push(ensNum);
+
+    var hdg = ens.AncillaryData.Heading;
+    var pitch = ens.AncillaryData.Pitch;
+    var roll = ens.AncillaryData.Roll;
+    $scope.hdgData[0].push(hdg);
+    $scope.hdgData[1].push(pitch);
+    $scope.hdgData[2].push(roll);
+
+    // Keep the size small
+    if($scope.hdgLabels.length > 40) {
+      $scope.hdgLabels.splice(0, 1);
+      $scope.hdgData[0].splice(0, 1);
+      $scope.hdgData[1].splice(0, 1);
+      $scope.hdgData[2].splice(0, 1);
+    }
+  }
+
+  function setProfileAmpData(json) {
+    $scope.ampPlotData = JSON.parse(json.Data);
+  }
+
+  function setProfileCorrData(json) {
+    $scope.corrPlotData = JSON.parse(json.Data);
+  }
+
+  function setProfileData(json) {
+    $scope.ampData = json.AmpData;
+		$scope.corrData = json.CorrData;
+  }
+
+	function setHprData(json) {
+		$scope.hprData = json.HprData;
+		//console.log($scope.hprData);
+		//console.log("hello");
+	}
+
+
+});
+</script>
+
+</body>
+</html>
