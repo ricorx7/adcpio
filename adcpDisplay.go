@@ -587,6 +587,11 @@ func sendProfileEpochPlotData(ens rti.Ensemble) {
 
 	var unixTime = time.Date(year, month, day, hour, min, sec, nsec, time.Local).Unix()
 
+	// Init the maps
+	profData.HeatmapMagData.Histogram = make(map[int]float64)
+	profData.HeatmapDirXNorthData.Histogram = make(map[int]float64)
+	profData.HeatmapDirYNorthData.Histogram = make(map[int]float64)
+
 	// Set the time
 	profData.HeatmapMagData.Time = unixTime
 	profData.HeatmapDirXNorthData.Time = unixTime
