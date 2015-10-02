@@ -161,8 +161,8 @@ type pointEpochTimeData struct {
 
 // pointEpochHeatmapData is the histogram data with bin and average value.
 type seriesEpochHeatmapData struct {
-	Time      int64           `json:"time"`      // Time data
-	Histogram map[int]float64 `json:"histogram"` // Histgram data
+	Time      int64     `json:"time"`      // Time data
+	Histogram []float64 `json:"histogram"` // Histgram data
 }
 
 // seriesEpochData holds the Epoch series data.
@@ -576,6 +576,7 @@ func sendProfileEpochPlotData(ens rti.Ensemble) {
 		CepoIndex: ens.EnsembleData.SubsystemConfig.CepoIndex, // Subsystem Config
 	}
 
+	// Get the time
 	var year = int(ens.EnsembleData.Year + 2000)
 	var month = time.Month(ens.EnsembleData.Month)
 	var day = int(ens.EnsembleData.Day)
@@ -584,13 +585,12 @@ func sendProfileEpochPlotData(ens rti.Ensemble) {
 	var sec = int(ens.EnsembleData.Second)
 	//var nsec = int(ens.EnsembleData.HSec * 0.0000001)
 	var nsec = 0
-
 	var unixTime = time.Date(year, month, day, hour, min, sec, nsec, time.Local).Unix()
 
 	// Init the maps
-	profData.HeatmapMagData.Histogram = make(map[int]float64)
-	profData.HeatmapDirXNorthData.Histogram = make(map[int]float64)
-	profData.HeatmapDirYNorthData.Histogram = make(map[int]float64)
+	profData.HeatmapMagData.Histogram = make([]float64, int(ens.EarthVelocityData.Base.NumElements))
+	profData.HeatmapDirXNorthData.Histogram = make([]float64, int(ens.EarthVelocityData.Base.NumElements))
+	profData.HeatmapDirYNorthData.Histogram = make([]float64, int(ens.EarthVelocityData.Base.NumElements))
 
 	// Set the time
 	profData.HeatmapMagData.Time = unixTime
