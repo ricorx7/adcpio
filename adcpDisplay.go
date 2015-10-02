@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"time"
 
 	"github.com/ricorx7/go-rti"
 )
@@ -16,6 +17,7 @@ const (
 	profileID         = "ProfileData"
 	profileRickshawID = "ProfileRickshawData"
 	profileC3ID       = "ProfileC3Data"
+	profileEpochID    = "ProfileEpochData"
 	hprID             = "HprData"
 )
 
@@ -157,18 +159,34 @@ type pointEpochTimeData struct {
 	Y    float32 `json:"y"`    // Y data
 }
 
+// pointEpochHeatmapData is the histogram data with bin and average value.
+type seriesEpochHeatmapData struct {
+	Time      int64           `json:"time"`      // Time data
+	Histogram map[int]float64 `json:"histogram"` // Histgram data
+}
+
 // seriesEpochData holds the Epoch series data.
 type seriesEpochData struct {
 	Label  string                `json:"label"`  // Series Label
 	Values []pointEpochPointData `json:"values"` // Values
 }
 
+// seriesEpochRealtimeData holds the Epoch series data.
+type seriesEpochRealtimeData struct {
+	Label  string               `json:"label"`  // Series Label
+	Values []pointEpochTimeData `json:"values"` // Values
+}
+
+// profileEpochData will store the Epoch plot data.
 type profileEpochData struct {
-	ID        string                    // Data ID
-	SerialNum string                    // Serial Number
-	CepoIndex uint8                     // Subystem configuration
-	Data      []seriesEpochData         // Data
-	TimeData  []seriesEpochRealtimeData // Realtime data
+	ID                   string                    // Data ID
+	SerialNum            string                    // Serial Number
+	CepoIndex            uint8                     // Subystem configuration
+	Data                 []seriesEpochData         // Data
+	RealtimeData         []seriesEpochRealtimeData // Realtime data
+	HeatmapMagData       seriesEpochHeatmapData    // Heatmap Magnitude data
+	HeatmapDirYNorthData seriesEpochHeatmapData    // Heatmap Direction Y North data
+	HeatmapDirXNorthData seriesEpochHeatmapData    // Heatmap Direction X North data
 }
 
 // processEnsemble will take the ensemble data and add it to the map.
@@ -199,6 +217,9 @@ func processEnsemble(server *adcpIO, ens rti.Ensemble) {
 
 	// Send Profile C3 data
 	sendProfileC3PlotData(ens)
+
+	// Send Profile Epoch data
+	sendProfileEpochPlotData(ens)
 
 	// Send HPR data
 	sendHprPlotData(ens)
@@ -536,6 +557,50 @@ func sendHprPlotData(ens rti.Ensemble) {
 
 	// Convert the JSON to byte array
 	b, err := json.Marshal(hpr)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	// Send the data to the display
+	sendDataToDisplays(b)
+}
+
+// sendProfileEpochPlotData will accumulate the amplitude and correlation data
+// to pass to the display.
+func sendProfileEpochPlotData(ens rti.Ensemble) {
+
+	profData := &profileEpochData{
+		ID:        profileEpochID,                             // ID
+		SerialNum: ens.EnsembleData.SerialNumber.SerialNumber, // Serial Data
+		CepoIndex: ens.EnsembleData.SubsystemConfig.CepoIndex, // Subsystem Config
+	}
+
+	var year = int(ens.EnsembleData.Year + 2000)
+	var month = time.Month(ens.EnsembleData.Month)
+	var day = int(ens.EnsembleData.Day)
+	var hour = int(ens.EnsembleData.Hour)
+	var min = int(ens.EnsembleData.Minute)
+	var sec = int(ens.EnsembleData.Second)
+	//var nsec = int(ens.EnsembleData.HSec * 0.0000001)
+	var nsec = 0
+
+	var unixTime = time.Date(year, month, day, hour, min, sec, nsec, time.Local).Unix()
+
+	// Set the time
+	profData.HeatmapMagData.Time = unixTime
+	profData.HeatmapDirXNorthData.Time = unixTime
+	profData.HeatmapDirYNorthData.Time = unixTime
+
+	// Set the heatmap data
+	for bin := 0; bin < int(ens.EarthVelocityData.Base.NumElements); bin++ {
+		profData.HeatmapMagData.Histogram[bin] = ens.EarthVelocityData.Vectors[bin].Magnitude
+		profData.HeatmapDirXNorthData.Histogram[bin] = ens.EarthVelocityData.Vectors[bin].DirectionXNorth
+		profData.HeatmapDirYNorthData.Histogram[bin] = ens.EarthVelocityData.Vectors[bin].DirectionYNorth
+	}
+
+	// Convert the JSON to byte array
+	b, err := json.Marshal(profData)
 	if err != nil {
 		log.Println(err)
 		return

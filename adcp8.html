@@ -201,32 +201,6 @@ app.controller('AdcpCtrl', function($scope) {
 /////////////////////////////////////////////////
 
 var data = [
-  // First Series
-  {
-    label: 'Series 1',
-    values: [
-      {
-        time: 1370044800,
-        histogram: {
-          18: 49,
-          104: 10,
-        }
-      },
-
-      {
-        time: 1370044801,
-        histogram: {
-          9: 8,
-					10: 1.2,
-					30: 4.5,
-          120: 17,
-        }
-      }
-    ]
-  }
-];
-
-var data1 = [
 	{
     label: 'Series 1',
     values: [
@@ -257,6 +231,25 @@ var data1 = [
 	}
 ];
 
+var data1 = [
+    {
+      time: 1370044805,
+      histogram: {
+        18: 49,
+        104: 10,
+      }
+    }
+];
+var data2 = [
+    {
+      time: 1370044806,
+      histogram: {
+        10: 100,
+        150: 25,
+      }
+    }
+];
+
 	var chart = $('#real-time-heatmap').epoch({
 	        type: 'time.heatmap',
 	        data: data,
@@ -270,6 +263,7 @@ var data1 = [
 
 //chart.push(data);
 chart.push(data1);
+chart.push(data2);
 
 
 
