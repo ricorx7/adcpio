@@ -188,8 +188,8 @@ app.controller('AdcpCtrl', function($scope) {
   $scope.statusMsgs = [];
   $scope.messageStr = "";
 	$scope.portList = "";
-	$scope.serverAddr = "192.168.0.152:8080/wsAdcp";
-	$scope.webSocketAddr = "ws://192.168.0.152:8080/wsAdcp";
+	$scope.serverAddr = "adcp.io/wsAdcp";
+	$scope.webSocketAddr = "ws://adcp.io/wsAdcp";
 	$scope.websocketState = "";
 	$scope.singleSelect = null;
 
@@ -200,70 +200,36 @@ app.controller('AdcpCtrl', function($scope) {
 
 /////////////////////////////////////////////////
 
-var data = [
+
+
+var initData = [
 	{
     label: 'Series 1',
     values: [
 			{
-        time: 1370044802,
-        histogram: {
-          18: 49,
-          104: 10,
-        }
-      },
-      {
-        time: 1370044803,
-        histogram: {
-          9: 8,
-					10: 1.2,
-					30: 4.5,
-          120: 17,
-        }
-      },
-			{
-        time: 1370044804,
-        histogram: {
-          40: 1.1,
-          154: 0.2,
-        }
-      },
+        time: 0,
+        histogram: { }
+      }
 		]
 	}
 ];
 
-var data1 = [
-    {
-      time: 1370044805,
-      histogram: {
-        18: 49,
-        104: 10,
-      }
-    }
-];
-var data2 = [
-    {
-      time: 1370044806,
-      histogram: {
-        10: 100,
-        150: 25,
-      }
-    }
-];
-
 	var chart = $('#real-time-heatmap').epoch({
 	        type: 'time.heatmap',
-	        data: data,
-	        windowSize: 60,
-	        buckets: 20,
-	        bucketRange: [0, 200],
-					bucketPadding: 0,
+	        data: initData,
+	        //windowSize: 60,
+	        buckets: 100,
+	        bucketRange: [0, 100],
+					//bucketPadding: 0,
 	        axes: ['left', 'bottom', 'right'],
 	        opacity: function(v, max) { return Math.pow((v/max), 0.7);}
 	    });
 
+//var chart = null;
+
 //chart.push(data);
-chart.push(data1);
-chart.push(data2);
+//chart.push(data1);
+//chart.push(data2);
 
 
 
@@ -590,6 +556,10 @@ WebsocketConnect();
 			// if(jsonData.ID == 'ProfileC3Data') {
 			// 	setProfileC3Data(jsonData)
 			// }
+			// Profile Rickshaw Data
+			if(jsonData.ID == 'ProfileEpochData') {
+				setProfileEpochData(jsonData)
+			}
 
 		}
   }
@@ -638,7 +608,38 @@ WebsocketConnect();
 		//console.log("hello");
 	}
 
+	function setProfileEpochData(json) {
+		var numBins = json.HeatmapMagData.histogram.length;
 
+		// Set the number of bins
+		if(chart.options.buckets != numBins) {
+			chart.options.buckets = numBins;
+			chart.options.bucketRange = [0, numBins];
+		}
+
+		// Convert the array to a map
+		// golang does not allow ints as a key for maps
+		var histogram = {};
+		for(x=0; x < json.HeatmapMagData.histogram.length; x++)
+		{
+			// Set bad value
+			if(json.HeatmapMagData.histogram[x] == 88.88) {
+				histogram[x] = 0;
+			}
+			else {
+				histogram[x] = json.HeatmapMagData.histogram[x];
+			}
+		}
+		json.HeatmapMagData.histogram = histogram;
+
+		// Put into an array
+		var data = [];
+		data.push(json.HeatmapMagData);
+
+		// Add the data to the plot
+		chart.push(data);
+		console.log(chart);
+  }
 
 
 

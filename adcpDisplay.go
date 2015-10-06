@@ -577,7 +577,7 @@ func sendProfileEpochPlotData(ens rti.Ensemble) {
 	}
 
 	// Get the time
-	var year = int(ens.EnsembleData.Year + 2000)
+	var year = int(ens.EnsembleData.Year)
 	var month = time.Month(ens.EnsembleData.Month)
 	var day = int(ens.EnsembleData.Day)
 	var hour = int(ens.EnsembleData.Hour)
@@ -586,6 +586,11 @@ func sendProfileEpochPlotData(ens rti.Ensemble) {
 	//var nsec = int(ens.EnsembleData.HSec * 0.0000001)
 	var nsec = 0
 	var unixTime = time.Date(year, month, day, hour, min, sec, nsec, time.Local).Unix()
+	// log.Printf("%s", time.Date(year, month, day, hour, min, sec, nsec, time.UTC).UTC())
+	// log.Printf("Year:%d Month:%s Day:%d Hour:%d Min:%d Sec:%d nSec:%d", year, month, day, hour, min, sec, nsec)
+	// log.Printf("%d", unixTime)
+	// log.Printf("%d", time.Date(year, month, day, hour, min, sec, nsec, time.Local).Unix())
+	// log.Printf("%d", time.Date(year, month, day, hour, min, sec, nsec, time.UTC).Unix())
 
 	// Init the maps
 	profData.HeatmapMagData.Histogram = make([]float64, int(ens.EarthVelocityData.Base.NumElements))
