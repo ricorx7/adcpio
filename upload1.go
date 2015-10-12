@@ -14,7 +14,7 @@ import (
 const downloadDir = "//home//ubuntu//upload//"
 
 // upload logic
-func uploadHandler(w http.ResponseWriter, r *http.Request) {
+func upload1Handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("method:", r.Method)
 	if r.Method == "GET" {
 		crutime := time.Now().Unix()

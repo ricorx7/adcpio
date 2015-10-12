@@ -27,19 +27,21 @@ func main() {
 	go server.run()
 
 	// HTTP server
-	http.HandleFunc("/", debugHandler)      // Debugger
-	http.HandleFunc("/adcp", adcpHandler)   // Adcp Display
-	http.HandleFunc("/adcp1", adcp1Handler) // Adcp1 Display
-	http.HandleFunc("/adcp2", adcp2Handler) // Adcp2 Display
-	http.HandleFunc("/adcp3", adcp3Handler) // Adcp3 Display
-	http.HandleFunc("/adcp4", adcp4Handler) // Adcp4 Display
-	http.HandleFunc("/adcp5", adcp5Handler) // Adcp5 Display
-	http.HandleFunc("/adcp6", adcp6Handler) // Adcp6 Display
-	http.HandleFunc("/adcp7", adcp7Handler) // Adcp7 Display
-	http.HandleFunc("/adcp8", adcp8Handler) // Adcp8 Display
-	http.HandleFunc("/upload", uploadHandler)
-	http.HandleFunc("/ws", wsHandler)                // wsHandler in websocketConn.go.  Creates websocket
-	http.HandleFunc("/wsAdcp", wsAdcpDisplayHandler) // wsHandler in websocketConn.go.  Creates websocket
+	http.Handle("/libs/", http.StripPrefix("/libs/", http.FileServer(http.Dir("libs")))) // External libs
+	http.HandleFunc("/", debugHandler)                                                   // Debugger
+	http.HandleFunc("/adcp", adcpHandler)                                                // Adcp Display
+	http.HandleFunc("/adcp1", adcp1Handler)                                              // Adcp1 Display
+	http.HandleFunc("/adcp2", adcp2Handler)                                              // Adcp2 Display
+	http.HandleFunc("/adcp3", adcp3Handler)                                              // Adcp3 Display
+	http.HandleFunc("/adcp4", adcp4Handler)                                              // Adcp4 Display
+	http.HandleFunc("/adcp5", adcp5Handler)                                              // Adcp5 Display
+	http.HandleFunc("/adcp6", adcp6Handler)                                              // Adcp6 Display
+	http.HandleFunc("/adcp7", adcp7Handler)                                              // Adcp7 Display
+	http.HandleFunc("/adcp8", adcp8Handler)                                              // Adcp8 Display
+	http.HandleFunc("/upload", uploadHandler)                                            // Upload a file to the upload folder
+	http.HandleFunc("/upload1", upload1Handler)                                          // Upload multiple files to the upload folder
+	http.HandleFunc("/ws", wsHandler)                                                    // wsHandler in websocketConn.go.  Creates websocket
+	http.HandleFunc("/wsAdcp", wsAdcpDisplayHandler)                                     // wsHandler in websocketConn.go.  Creates websocket
 	if err := http.ListenAndServe(*addr, nil); err != nil {
 		fmt.Printf("Error trying to bind to port: %v, so exiting...", err)
 		log.Fatal("Error ListenAndServe:", err)
