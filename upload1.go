@@ -31,6 +31,7 @@ func upload1Handler(w http.ResponseWriter, r *http.Request) {
 		r.ParseMultipartForm(32 << 20)
 		file, handler, err := r.FormFile("uploadfile")
 		if err != nil {
+			log.Printf("Error Uploading File")
 			fmt.Println(err)
 			return
 		}
@@ -39,6 +40,7 @@ func upload1Handler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%v", handler.Header)
 		f, err := os.OpenFile(downloadDir1+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
+			log.Printf("Error Uploading File")
 			fmt.Println(err)
 			return
 		}
