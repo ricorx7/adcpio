@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -31,6 +32,7 @@ func upload1Handler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 			return
 		}
+		log.Printf("File : %s", file)
 		defer file.Close()
 		fmt.Fprintf(w, "%v", handler.Header)
 		f, err := os.OpenFile(downloadDir1+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
