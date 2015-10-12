@@ -16,7 +16,7 @@ const downloadDir1 = "//home//ubuntu//upload//"
 
 // upload logic
 func upload1Handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("method:", r.Method)
+	fmt.Println("upload 1 method:", r.Method)
 	if r.Method == "GET" {
 		crutime := time.Now().Unix()
 		h := md5.New()
@@ -26,6 +26,7 @@ func upload1Handler(w http.ResponseWriter, r *http.Request) {
 		t, _ := template.ParseFiles("upload1.html")
 		t.Execute(w, token)
 	} else {
+		log.Printf("Received files upload1")
 		r.ParseMultipartForm(32 << 20)
 		file, handler, err := r.FormFile("uploadfile")
 		if err != nil {
