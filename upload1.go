@@ -18,6 +18,7 @@ const downloadDir1 = "//home//ubuntu//upload//"
 func upload1Handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("upload 1 method:", r.Method)
 	if r.Method == "GET" {
+		fmt.Println("upload 1 GET:")
 		crutime := time.Now().Unix()
 		h := md5.New()
 		io.WriteString(h, strconv.FormatInt(crutime, 10))
