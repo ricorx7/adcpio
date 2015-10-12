@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-const downloadDir = "//home//ubuntu//upload//"
+const downloadDir1 = "//home//ubuntu//upload//"
 
 // upload logic
 func upload1Handler(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +33,7 @@ func upload1Handler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer file.Close()
 		fmt.Fprintf(w, "%v", handler.Header)
-		f, err := os.OpenFile(downloadDir+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+		f, err := os.OpenFile(downloadDir1+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
 		if err != nil {
 			fmt.Println(err)
 			return
