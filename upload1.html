@@ -122,7 +122,10 @@
     var app = angular.module('adcpio', ['angularFileUpload']);
     app.controller('UploadCtrl', function($scope, FileUploader) {
 
-    $scope.uploader = new FileUploader();
+    //$scope.uploader = new FileUploader();
+    var uploader = $scope.uploader = new FileUploader({
+            url: 'adcp.io/upload1'
+        });
 
     //     // upload on file select or drop
     // $scope.upload = function (file) {
