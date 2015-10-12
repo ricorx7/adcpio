@@ -127,7 +127,7 @@
         // upload on file select or drop
     $scope.upload = function (file) {
         Upload.upload({
-            url: 'upload/url',
+            url: 'adcp.io/upload1',
             data: {file: file, 'username': $scope.username}
         }).then(function (resp) {
             console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
@@ -139,28 +139,28 @@
         });
       };
 
-      $scope.uploadFiles = function (files) {
-        $scope.files = files;
-        if (files && files.length) {
-            Upload.upload({
-                url: 'adcp.io/upload1',
-                data: {
-                    files: files
-                }
-            }).then(function (response) {
-                $timeout(function () {
-                    $scope.result = response.data;
-                });
-            }, function (response) {
-                if (response.status > 0) {
-                    $scope.errorMsg = response.status + ': ' + response.data;
-                }
-            }, function (evt) {
-                $scope.progress =
-                    Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-            });
-        }
-    };
+    //   $scope.uploadFiles = function (files) {
+    //     $scope.files = files;
+    //     if (files && files.length) {
+    //         Upload.upload({
+    //             url: 'adcp.io/upload1',
+    //             data: {
+    //                 files: files
+    //             }
+    //         }).then(function (response) {
+    //             $timeout(function () {
+    //                 $scope.result = response.data;
+    //             });
+    //         }, function (response) {
+    //             if (response.status > 0) {
+    //                 $scope.errorMsg = response.status + ': ' + response.data;
+    //             }
+    //         }, function (evt) {
+    //             $scope.progress =
+    //                 Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+    //         });
+    //     }
+    // };
 
   });
   </script>
