@@ -22,7 +22,7 @@ func upload1Handler(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(h, strconv.FormatInt(crutime, 10))
 		token := fmt.Sprintf("%x", h.Sum(nil))
 
-		t, _ := template.ParseFiles("upload.html")
+		t, _ := template.ParseFiles("upload1.html")
 		t.Execute(w, token)
 	} else {
 		r.ParseMultipartForm(32 << 20)
