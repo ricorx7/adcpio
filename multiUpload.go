@@ -19,9 +19,7 @@ const maxMemory = 1 * 1024 * 1024
 
 // upload logic
 func multiUploadHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("upload 1 method:", r.Method)
 	if r.Method == "GET" {
-		fmt.Println("upload 1 GET:")
 		crutime := time.Now().Unix()
 		h := md5.New()
 		io.WriteString(h, strconv.FormatInt(crutime, 10))
@@ -30,6 +28,7 @@ func multiUploadHandler(w http.ResponseWriter, r *http.Request) {
 		t, _ := template.ParseFiles("multiUpload.html")
 		t.Execute(w, token)
 	} else {
+		// https://github.com/golang-samples/http/blob/master/fileupload/main.go
 		if err := r.ParseMultipartForm(maxMemory); err != nil {
 			log.Println(err)
 			http.Error(w, err.Error(), http.StatusForbidden)
