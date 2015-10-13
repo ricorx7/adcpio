@@ -27,7 +27,7 @@ func multiUploadHandler(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(h, strconv.FormatInt(crutime, 10))
 		token := fmt.Sprintf("%x", h.Sum(nil))
 
-		t, _ := template.ParseFiles("multiupload.html")
+		t, _ := template.ParseFiles("multiUpload.html")
 		t.Execute(w, token)
 	} else {
 		if err := r.ParseMultipartForm(maxMemory); err != nil {
