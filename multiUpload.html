@@ -33,7 +33,7 @@
                 </div>
 
                 <!-- Example: nv-file-drop="" uploader="{Object}" options="{Object}" filters="{String}" -->
-                <div nv-file-drop="" uploader="uploader" options="{ url: '/upload1' }">
+                <div nv-file-drop="" uploader="uploader" options="{ url: '/multiupload' }">
                     <div nv-file-over="" uploader="uploader" over-class="another-file-over-class" class="well my-drop-zone">
                         Another drop zone with its own settings
                     </div>
@@ -124,7 +124,7 @@
 
     //$scope.uploader = new FileUploader();
     var uploader = $scope.uploader = new FileUploader({
-            url: 'upload1'
+            url: 'multiupload'
         });
 
         // CALLBACKS

@@ -18,7 +18,7 @@ const downloadDir1 = "//home//ubuntu//upload//"
 const maxMemory = 1 * 1024 * 1024
 
 // upload logic
-func upload1Handler(w http.ResponseWriter, r *http.Request) {
+func multiUploadHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("upload 1 method:", r.Method)
 	if r.Method == "GET" {
 		fmt.Println("upload 1 GET:")

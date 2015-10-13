@@ -39,7 +39,7 @@ func main() {
 	http.HandleFunc("/adcp7", adcp7Handler)                                              // Adcp7 Display
 	http.HandleFunc("/adcp8", adcp8Handler)                                              // Adcp8 Display
 	http.HandleFunc("/upload", uploadHandler)                                            // Upload a file to the upload folder
-	http.HandleFunc("/upload1", upload1Handler)                                          // Upload multiple files to the upload folder
+	http.HandleFunc("/multiupload", multiUploadHandler)                                  // Upload multiple files to the upload folder
 	http.HandleFunc("/ws", wsHandler)                                                    // wsHandler in websocketConn.go.  Creates websocket
 	http.HandleFunc("/wsAdcp", wsAdcpDisplayHandler)                                     // wsHandler in websocketConn.go.  Creates websocket
 	if err := http.ListenAndServe(*addr, nil); err != nil {
