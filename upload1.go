@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -13,6 +14,8 @@ import (
 )
 
 const downloadDir1 = "//home//ubuntu//upload//"
+
+const maxMemory = 1 * 1024 * 1024
 
 // upload logic
 func upload1Handler(w http.ResponseWriter, r *http.Request) {
@@ -27,24 +30,24 @@ func upload1Handler(w http.ResponseWriter, r *http.Request) {
 		t, _ := template.ParseFiles("upload1.html")
 		t.Execute(w, token)
 	} else {
-		log.Printf("Received files upload1")
-		r.ParseMultipartForm(32 << 20)
-		file, handler, err := r.FormFile("uploadfile")
-		if err != nil {
-			log.Printf("Error Uploading File")
-			fmt.Println(err)
-			return
+		if err := r.ParseMultipartForm(maxMemory); err != nil {
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusForbidden)
 		}
-		log.Printf("File : %s", file)
-		defer file.Close()
-		fmt.Fprintf(w, "%v", handler.Header)
-		f, err := os.OpenFile(downloadDir1+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
-		if err != nil {
-			log.Printf("Error Uploading File")
-			fmt.Println(err)
-			return
+
+		for key, value := range r.MultipartForm.Value {
+			fmt.Fprintf(w, "%s:%s ", key, value)
+			log.Printf("%s:%s", key, value)
 		}
-		defer f.Close()
-		io.Copy(f, file)
+
+		for _, fileHeaders := range r.MultipartForm.File {
+			for _, fileHeader := range fileHeaders {
+				file, _ := fileHeader.Open()
+				path := fmt.Sprintf("%s/%s", downloadDir1, fileHeader.Filename)
+				buf, _ := ioutil.ReadAll(file)
+				ioutil.WriteFile(path, buf, os.ModePerm)
+			}
+		}
 	}
+
 }
