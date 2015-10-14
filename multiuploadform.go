@@ -25,7 +25,7 @@ func multiUploadFormHandler(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(h, strconv.FormatInt(crutime, 10))
 		token := fmt.Sprintf("%x", h.Sum(nil))
 
-		t, _ := template.ParseFiles("multiUploadform.html")
+		t, _ := template.ParseFiles("multiuploadform.html")
 		t.Execute(w, token)
 	} else {
 		// https://github.com/golang-samples/http/blob/master/fileupload/main.go
